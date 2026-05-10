@@ -1,0 +1,47 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+
+# Data — images are too large for git, tracked by DVC in Block 3C
+data/raw/
+data/index/
+data/holdout/
+data/ood_test/
+data/corrections/
+data/qdrant_storage/
+
+# Keep the eval contract and folder structure
+!data/eval_pairs.json
+!data/raw/.gitkeep
+!data/index/.gitkeep
+!data/holdout/.gitkeep
+!data/ood_test/.gitkeep
+!data/corrections/.gitkeep
+
+# Model cache (HuggingFace, Ultralytics)
+.cache/
+*.pt
+*.onnx
+*.engine
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# MLflow (Phase 3)
+mlruns/

@@ -1,0 +1,1202 @@
+[
+  {
+    "query": "\"grey teddy bear cake with blue bow and purple birthday cake on wooden table\"",
+    "image_id": "000000377368",
+    "image_path": "index/000000377368.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"child in a helmet performing a skateboard trick over a bowl at a skatepark\"",
+    "image_id": "000000065350",
+    "image_path": "index/000000065350.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man repairing a motorcycle wheel on a street with parked bikes in the background\"",
+    "image_id": "000000013177",
+    "image_path": "index/000000013177.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"young boy in red shirt skating on skateboard at a park with green grass\"",
+    "image_id": "000000442463",
+    "image_path": "index/000000442463.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"zebra grazing on the ground with a giraffe reaching for food from a tall feeder in a sunny zoo setting\"",
+    "image_id": "000000163290",
+    "image_path": "index/000000163290.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"roasted lamb shank with chestnuts and herbs on a festive table setting\"",
+    "image_id": "000000147205",
+    "image_path": "index/000000147205.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Arriva bus number X11 in turquoise color at a city intersection with pedestrians and buildings in the background\"",
+    "image_id": "000000133819",
+    "image_path": "index/000000133819.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"slice of pizza with ham and cheese on a floral plate in front of a TV showing a scene from a sitcom\"",
+    "image_id": "000000084431",
+    "image_path": "index/000000084431.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman cross-country skiing in winter with headphones and a white beanie\"",
+    "image_id": "000000439522",
+    "image_path": "index/000000439522.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"laptop on a table with a blueberry muffin, banana, and a can of soda in a conference room\"",
+    "image_id": "000000059598",
+    "image_path": "index/000000059598.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people waiting in line at a red food truck with a sign that says 'Best of D.C.' on a sunny day\"",
+    "image_id": "000000401862",
+    "image_path": "index/000000401862.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man with long hair riding a large wheeled bicycle in a desert setting with other bikes around\"",
+    "image_id": "000000441586",
+    "image_path": "index/000000441586.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"colorful umbrellas in the rain with a blurred urban background\"",
+    "image_id": "000000530854",
+    "image_path": "index/000000530854.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"urinal in a public restroom next to a red table with a plate of green vegetables\"",
+    "image_id": "000000325114",
+    "image_path": "index/000000325114.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in a gray sweatshirt and khaki shorts flying a kite on a sandy beach with ocean waves\"",
+    "image_id": "000000050326",
+    "image_path": "index/000000050326.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bride and groom cutting a wedding cake shaped like a hot dog with a blue and white tiered cake in a banquet hall\"",
+    "image_id": "000000350679",
+    "image_path": "index/000000350679.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two people walking in the snow at night under an umbrella with streetlights glowing\"",
+    "image_id": "000000248284",
+    "image_path": "index/000000248284.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman guiding a brown horse in a barn with wooden walls and sunlight streaming in\"",
+    "image_id": "000000015956",
+    "image_path": "index/000000015956.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"boy eating at a restaurant with two adults sitting beside him in low light\"",
+    "image_id": "000000015335",
+    "image_path": "index/000000015335.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"four skiers posing on a snowy mountain slope with a clear blue sky and peaks in the background\"",
+    "image_id": "000000053626",
+    "image_path": "index/000000053626.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"gray cat wearing a blue tie with cartoon animals sitting on a pile of clothes\"",
+    "image_id": "000000131938",
+    "image_path": "index/000000131938.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"young boy in red shirt playing video game with white controller in living room\"",
+    "image_id": "000000139077",
+    "image_path": "index/000000139077.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"small bird with a white belly and brown speckles perched on a branch surrounded by green leaves\"",
+    "image_id": "000000300155",
+    "image_path": "index/000000300155.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two black and white cows grazing in a green field under soft sunlight\"",
+    "image_id": "000000357081",
+    "image_path": "index/000000357081.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people working in a cluttered workshop with laptops and tools, one person wearing a yellow hat\"",
+    "image_id": "000000013659",
+    "image_path": "index/000000013659.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"cross-country skiers racing on a snowy trail with trees in the background\"",
+    "image_id": "000000334767",
+    "image_path": "index/000000334767.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"upside down patio umbrella in a rainy backyard with a grill and picnic table\"",
+    "image_id": "000000121506",
+    "image_path": "index/000000121506.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"surfer walking on wet sand at low tide with a surfboard near rocky coastline\"",
+    "image_id": "000000425702",
+    "image_path": "index/000000425702.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman in a pink shirt holding a remote control in a dimly lit room with a blurred figure in the background\"",
+    "image_id": "000000383838",
+    "image_path": "index/000000383838.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"cozy living room with a rocking chair, wooden bookshelf, and a folding screen\"",
+    "image_id": "000000416534",
+    "image_path": "index/000000416534.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two slices of pizza with meat toppings on a white plate next to a colorful shot glass\"",
+    "image_id": "000000324927",
+    "image_path": "index/000000324927.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"herd of elephants wading through a river in a natural setting\"",
+    "image_id": "000000245915",
+    "image_path": "index/000000245915.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"skateboarder in orange shirt performing a trick on a glass railing with blue sky in the background\"",
+    "image_id": "000000132703",
+    "image_path": "index/000000132703.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"greyhound dog eating from a black plate on a plaid dog bed with a plant in the background\"",
+    "image_id": "000000267300",
+    "image_path": "index/000000267300.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people waiting at a train station platform with vintage red and white trains\"",
+    "image_id": "000000350122",
+    "image_path": "index/000000350122.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"half cheese half veggie pizza in a takeout box\"",
+    "image_id": "000000164969",
+    "image_path": "index/000000164969.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Vietnamese banh mi sandwich with grilled fish, cucumber, cilantro, and pickled carrots on a green table\"",
+    "image_id": "000000479732",
+    "image_path": "index/000000479732.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"female tennis player serving on green grass court at Wimbledon\"",
+    "image_id": "000000515828",
+    "image_path": "index/000000515828.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two white egrets standing in tall grass with fishing boats and docks in the background under a cloudy sky\"",
+    "image_id": "000000002923",
+    "image_path": "index/000000002923.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two women in a garden, one pulling a blue suitcase while the other watches\"",
+    "image_id": "000000453001",
+    "image_path": "index/000000453001.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Malaysia Airlines airplane parked at an airport gate viewed through a terminal window\"",
+    "image_id": "000000477441",
+    "image_path": "index/000000477441.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"stop sign next to Fort York Blvd street sign with construction cranes in the background\"",
+    "image_id": "000000095899",
+    "image_path": "index/000000095899.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"herd of elephants bathing in a river with people watching from a railing\"",
+    "image_id": "000000414795",
+    "image_path": "index/000000414795.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man wearing a polka dot shirt hitting a tennis ball on a grassy court\"",
+    "image_id": "000000248616",
+    "image_path": "index/000000248616.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"small park with a wooden shed, manicured garden, and a blue sky\"",
+    "image_id": "000000195045",
+    "image_path": "index/000000195045.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"skier in green and yellow outfit jumping over a snow ramp at a ski resort\"",
+    "image_id": "000000164885",
+    "image_path": "index/000000164885.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in blue cap assembling a colorful kite on a beach towel at the beach\"",
+    "image_id": "000000093261",
+    "image_path": "index/000000093261.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"freight train with long cargo wagons curving through green countryside\"",
+    "image_id": "000000130566",
+    "image_path": "index/000000130566.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man decorating a birthday cake at a cluttered kitchen table with colorful pills in the background\"",
+    "image_id": "000000570471",
+    "image_path": "index/000000570471.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black and white photo of a girl in a polka dot coat riding a scooter with a boy laughing in the background\"",
+    "image_id": "000000455555",
+    "image_path": "index/000000455555.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man sitting on a snowboard in the snow wearing goggles and a green jacket\"",
+    "image_id": "000000193429",
+    "image_path": "index/000000193429.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people playing video games at a gaming convention with controllers in hand\"",
+    "image_id": "000000059044",
+    "image_path": "index/000000059044.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Australian shepherd dog with a yellow frisbee on a sandy beach with turquoise water and a distant island\"",
+    "image_id": "000000052891",
+    "image_path": "index/000000052891.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"small kitchen with light wood cabinets, white appliances, and beige tiled floor\"",
+    "image_id": "000000222825",
+    "image_path": "index/000000222825.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"pelican perched on a rocky shore with a cloudy sky and distant mountains\"",
+    "image_id": "000000055299",
+    "image_path": "index/000000055299.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person surfing on a longboard in the ocean with two other surfers nearby\"",
+    "image_id": "000000209829",
+    "image_path": "index/000000209829.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"collage of road signs including a stop sign and directional signs on a desert highway with Joshua trees in the background\"",
+    "image_id": "000000501023",
+    "image_path": "index/000000501023.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bright yellow 1970s Chevrolet pickup truck parked in a lot with trees and blue sky\"",
+    "image_id": "000000198805",
+    "image_path": "index/000000198805.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"pink bus with advertising for ASDA and H&M parked at a bus stop\"",
+    "image_id": "000000357748",
+    "image_path": "index/000000357748.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"sheep running in a grassy field at a country fair with a welcome banner in the background\"",
+    "image_id": "000000158548",
+    "image_path": "index/000000158548.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"calico kitten sleeping next to a fluffy teddy bear on a floral bedspread with another kitten in the background\"",
+    "image_id": "000000478393",
+    "image_path": "index/000000478393.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"yellow school bus reflected in a side mirror on a cloudy day\"",
+    "image_id": "000000022755",
+    "image_path": "index/000000022755.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"anime figurines surprised by a slice of pizza topped with pineapple and bacon on a restaurant table\"",
+    "image_id": "000000434479",
+    "image_path": "index/000000434479.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"stop sign on a winding road at dusk with a streetlight illuminating the scene\"",
+    "image_id": "000000273617",
+    "image_path": "index/000000273617.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"modern hotel room with wooden ceiling, large windows, and a balcony view\"",
+    "image_id": "000000319935",
+    "image_path": "index/000000319935.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"hawaiian pizza with ham and pineapple in a silver round pan\"",
+    "image_id": "000000075456",
+    "image_path": "index/000000075456.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"stop sign at intersection of East Woodfield Road and Village Street with autumn trees in the background\"",
+    "image_id": "000000579893",
+    "image_path": "index/000000579893.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"orange Metro bus with route 96 sign at a bus stop in a city street\"",
+    "image_id": "000000550349",
+    "image_path": "index/000000550349.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"tabby cat playing with tall green grass in a garden\"",
+    "image_id": "000000222235",
+    "image_path": "index/000000222235.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"sheep grazing on green hillside with mountains and lake in the background\"",
+    "image_id": "000000044699",
+    "image_path": "index/000000044699.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person wearing white shirt standing next to stacked vintage suitcases with red handbag at outdoor market\"",
+    "image_id": "000000329041",
+    "image_path": "index/000000329041.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"homemade pizza baking in a countertop toaster oven with vegetables and cheese\"",
+    "image_id": "000000172396",
+    "image_path": "index/000000172396.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"cozy living room with white chair, floral curtains, and a vintage bookshelf beside a television\"",
+    "image_id": "000000491497",
+    "image_path": "index/000000491497.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"smooth black stones with holes next to a US dime on a white background\"",
+    "image_id": "000000370999",
+    "image_path": "index/000000370999.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"brindle dog playing with a white soccer ball on a grassy yard\"",
+    "image_id": "000000366611",
+    "image_path": "index/000000366611.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman sitting in a white chair on a porch with a laptop and a table full of items\"",
+    "image_id": "000000527427",
+    "image_path": "index/000000527427.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"modern white sofa with colorful pillows in a minimalist living room with a scenic landscape painting\"",
+    "image_id": "000000509824",
+    "image_path": "index/000000509824.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"luxurious hotel bathroom with marble walls, wooden accents, and a glass shower\"",
+    "image_id": "000000210855",
+    "image_path": "index/000000210855.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Barack Obama speaking at a podium with a Soviet Union flag in the background\"",
+    "image_id": "000000344268",
+    "image_path": "index/000000344268.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person with short red hair looking into a refrigerator while a calico cat watches from the top shelf\"",
+    "image_id": "000000117908",
+    "image_path": "index/000000117908.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"surfer riding a wave with a patterned surfboard in choppy ocean water\"",
+    "image_id": "000000417911",
+    "image_path": "index/000000417911.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man cross-country skiing in a snowy forest with mountains in the background\"",
+    "image_id": "000000038210",
+    "image_path": "index/000000038210.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"white calf lying in green grass near a tree with cows in the background\"",
+    "image_id": "000000023937",
+    "image_path": "index/000000023937.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman in black hoodie and polka dot tights sitting on a wooden bench in front of a stone archway\"",
+    "image_id": "000000391375",
+    "image_path": "index/000000391375.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bright kitchen with a round wooden table, a vase of orange tulips, and hanging plants near a window\"",
+    "image_id": "000000136355",
+    "image_path": "index/000000136355.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"red stop sign with a blank white section underneath near a bridge and a blue pickup truck\"",
+    "image_id": "000000460229",
+    "image_path": "index/000000460229.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"breakfast plate with scrambled eggs, ham, tomatoes, and buttered toast on a blue tray\"",
+    "image_id": "000000170595",
+    "image_path": "index/000000170595.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"cozy kitchen with orange cabinets and a foggy window displaying colorful decorations\"",
+    "image_id": "000000045229",
+    "image_path": "index/000000045229.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"youth baseball players on a field with one player throwing a ball and an umpire observing\"",
+    "image_id": "000000507015",
+    "image_path": "index/000000507015.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman wearing a helmet riding a blue scooter with a dog in a busy outdoor market\"",
+    "image_id": "000000139099",
+    "image_path": "index/000000139099.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"red biplane flying low over a motorcycle on a runway\"",
+    "image_id": "000000513580",
+    "image_path": "index/000000513580.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"three elephants standing together in a sepia-toned landscape with a distant barn and trees\"",
+    "image_id": "000000058384",
+    "image_path": "index/000000058384.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"green traffic light above a road with a car approaching and trees in the background\"",
+    "image_id": "000000269942",
+    "image_path": "index/000000269942.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"flock of sheep with black faces standing in a grassy field near stone wall\"",
+    "image_id": "000000375763",
+    "image_path": "index/000000375763.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman skiing in fresh powder snow wearing a green jacket and helmet\"",
+    "image_id": "000000493442",
+    "image_path": "index/000000493442.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in blue jacket opening oven door in modern kitchen\"",
+    "image_id": "000000213086",
+    "image_path": "index/000000213086.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two green finches perched on a curved metal branch with one feeding the other\"",
+    "image_id": "000000098261",
+    "image_path": "index/000000098261.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bitten red apple next to a black and silver flip phone on a gray surface\"",
+    "image_id": "000000216277",
+    "image_path": "index/000000216277.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"San Francisco city bus navigating a busy intersection with cars and a motorcycle\"",
+    "image_id": "000000206487",
+    "image_path": "index/000000206487.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"sunset over New York City skyline with a subway train approaching on elevated tracks\"",
+    "image_id": "000000127624",
+    "image_path": "index/000000127624.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"red PC-21 aircraft on runway in front of BAE Systems hangar\"",
+    "image_id": "000000396903",
+    "image_path": "index/000000396903.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman eating pizza with fresh tomatoes and a green bottle of beer on a wooden table\"",
+    "image_id": "000000160012",
+    "image_path": "index/000000160012.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black and white Holstein cow standing in a grassy field with other cows in the background\"",
+    "image_id": "000000416758",
+    "image_path": "index/000000416758.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"teenager in a black jersey with 'Jordan 23' walking away from a skateboard ramp at a skatepark\"",
+    "image_id": "000000559160",
+    "image_path": "index/000000559160.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"children gathered around a birthday cake with candles and a colorful tablecloth\"",
+    "image_id": "000000405249",
+    "image_path": "index/000000405249.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person reaching for a glazed donut from an open box on a table\"",
+    "image_id": "000000383337",
+    "image_path": "index/000000383337.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"train approaching on narrow tracks surrounded by greenery\"",
+    "image_id": "000000039670",
+    "image_path": "index/000000039670.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"brown and white cow grazing on grass next to a fence in front of two houses\"",
+    "image_id": "000000361268",
+    "image_path": "index/000000361268.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black dog being playfully held by a person over an open suitcase with magazines nearby\"",
+    "image_id": "000000375278",
+    "image_path": "index/000000375278.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"close-up of a striped hen walking through tall grass with chicks nearby\"",
+    "image_id": "000000104119",
+    "image_path": "index/000000104119.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"slice of brown bread on a white plate with a fork, orange juice in a glass, and a slice of orange on a yellow napkin\"",
+    "image_id": "000000318114",
+    "image_path": "index/000000318114.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"grilled chicken sandwich with spinach and steamed broccoli and carrots on a white plate\"",
+    "image_id": "000000434297",
+    "image_path": "index/000000434297.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Royal Mail train at a busy railway station platform\"",
+    "image_id": "000000146825",
+    "image_path": "index/000000146825.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in a baseball cap relaxing on a white bench by the seaside with people walking in the background\"",
+    "image_id": "000000098716",
+    "image_path": "index/000000098716.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"family picnic in backyard with colorful umbrellas and outdoor dining table filled with food\"",
+    "image_id": "000000275198",
+    "image_path": "index/000000275198.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black and white photo of people playing at the beach with sailboats in the background and dramatic clouds\"",
+    "image_id": "000000222559",
+    "image_path": "index/000000222559.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"teenager skiing in a gray and green racing suit with a blue helmet on a snowy slope\"",
+    "image_id": "000000161781",
+    "image_path": "index/000000161781.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"gray and white cat cuddling with orange tabby cat on a colorful patterned blanket\"",
+    "image_id": "000000551815",
+    "image_path": "index/000000551815.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"zebra-striped pony with a white coat standing in a grassy field\"",
+    "image_id": "000000377497",
+    "image_path": "index/000000377497.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"vintage fighter planes on an airfield with a cloudy sky and orange traffic cones\"",
+    "image_id": "000000408112",
+    "image_path": "index/000000408112.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"surfers riding waves at a beach with cloudy skies and multiple surfboards\"",
+    "image_id": "000000332351",
+    "image_path": "index/000000332351.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"female softball player swinging a bat at a yellow ball during a game with a catcher and umpire in the background\"",
+    "image_id": "000000132544",
+    "image_path": "index/000000132544.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"adult elephant walking with two baby elephants near a zoo enclosure\"",
+    "image_id": "000000405972",
+    "image_path": "index/000000405972.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"teenagers watching a virtual tennis game at an indoor event with a green court and a ladder in the background\"",
+    "image_id": "000000187734",
+    "image_path": "index/000000187734.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"fresh sandwich with sprouts, tomato, pickles, and crispy potato chips on a plate\"",
+    "image_id": "000000499109",
+    "image_path": "index/000000499109.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"youth baseball game with player batting and catcher in gray uniform\"",
+    "image_id": "000000458045",
+    "image_path": "index/000000458045.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in a helmet riding a motorcycle with a tattoo on his arm reflected in a car window\"",
+    "image_id": "000000461751",
+    "image_path": "index/000000461751.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"ceramic vase with colorful glaze holding dried flowers and decorative sticks against a brown wall\"",
+    "image_id": "000000031050",
+    "image_path": "index/000000031050.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bowl of sliced strawberries and peeled mandarin oranges\"",
+    "image_id": "000000136772",
+    "image_path": "index/000000136772.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"plate of glazed and chocolate frosted donuts with a child's bare feet in the background\"",
+    "image_id": "000000486438",
+    "image_path": "index/000000486438.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"home office desk with laptop, orange drink, lamp, and telephone\"",
+    "image_id": "000000016439",
+    "image_path": "index/000000016439.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black and white cat lying on a white blanket next to a TV remote control\"",
+    "image_id": "000000476810",
+    "image_path": "index/000000476810.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people waiting at a red traffic light on a city street with buildings in the background\"",
+    "image_id": "000000183709",
+    "image_path": "index/000000183709.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two giraffes standing in a dry, barren landscape with sparse trees and grass\"",
+    "image_id": "000000235252",
+    "image_path": "index/000000235252.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people kayaking and paddleboarding in a marina with sailboats and a rocky cliff in the background\"",
+    "image_id": "000000160728",
+    "image_path": "index/000000160728.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person in black ski gear skiing on snowy slope with child in pink snowsuit nearby\"",
+    "image_id": "000000036539",
+    "image_path": "index/000000036539.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"modern living room with brown leather sofas and a view of a patio with a barbecue grill\"",
+    "image_id": "000000128148",
+    "image_path": "index/000000128148.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"herd of zebras crossing a river in a savannah landscape\"",
+    "image_id": "000000545730",
+    "image_path": "index/000000545730.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"three zebras grazing on green grass with a wooden fence in the background\"",
+    "image_id": "000000562443",
+    "image_path": "index/000000562443.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"blue fire hydrant with yellow top on a city street with traffic lights\"",
+    "image_id": "000000338560",
+    "image_path": "index/000000338560.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"gray and orange tortoiseshell cat sitting on a wooden table next to a remote control in a cozy living room\"",
+    "image_id": "000000520531",
+    "image_path": "index/000000520531.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"person snowboarding on a snowy slope with a blue flag in the background\"",
+    "image_id": "000000426376",
+    "image_path": "index/000000426376.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two women riding an elephant with a guide in a rural setting\"",
+    "image_id": "000000183437",
+    "image_path": "index/000000183437.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"David Ortiz talking to umpire and catcher during a Boston Red Sox game\"",
+    "image_id": "000000128748",
+    "image_path": "index/000000128748.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"three cats on a messy bed with blue blankets, one black Persian cat sitting and two others lying down\"",
+    "image_id": "000000387383",
+    "image_path": "index/000000387383.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"clock tower with Roman numerals and weather vane against a blue sky\"",
+    "image_id": "000000295797",
+    "image_path": "index/000000295797.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"vintage baseball jerseys displayed in a museum exhibit with memorabilia from different teams\"",
+    "image_id": "000000231747",
+    "image_path": "index/000000231747.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"brown calf nursing from a brown cow with a black cow nearby in a grassy field\"",
+    "image_id": "000000526706",
+    "image_path": "index/000000526706.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"flock of sheep resting in a green field with trees and power lines in the background\"",
+    "image_id": "000000546556",
+    "image_path": "index/000000546556.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"skateboarder performing a trick in a skate park with a crowd watching\"",
+    "image_id": "000000378673",
+    "image_path": "index/000000378673.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"water gushing from a blue fire hydrant on a city sidewalk\"",
+    "image_id": "000000273198",
+    "image_path": "index/000000273198.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"ski resort with people waiting in line at a ski lift on a sunny day with snow-covered mountains\"",
+    "image_id": "000000085682",
+    "image_path": "index/000000085682.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bananas and red apples in white bowls with price tags at a cafe counter\"",
+    "image_id": "000000158660",
+    "image_path": "index/000000158660.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"workspace with a laptop and two monitors displaying a space shuttle launch and a galaxy image\"",
+    "image_id": "000000148620",
+    "image_path": "index/000000148620.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"zebra grazing on grass in a zoo enclosure with a blurred fence in the background\"",
+    "image_id": "000000445439",
+    "image_path": "index/000000445439.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"pink Nokia smartphone with Windows interface showing CNN and Office apps\"",
+    "image_id": "000000334977",
+    "image_path": "index/000000334977.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"black BMW motorcycle parked on a brick driveway next to a white building\"",
+    "image_id": "000000321557",
+    "image_path": "index/000000321557.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in plaid shirt skateboarding on a city street with parked cars\"",
+    "image_id": "000000157365",
+    "image_path": "index/000000157365.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"Singapore MRT train passing by residential buildings with a bus in the foreground\"",
+    "image_id": "000000446206",
+    "image_path": "index/000000446206.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"light brown dog sitting on a couch with colorful chili pepper pillows\"",
+    "image_id": "000000347930",
+    "image_path": "index/000000347930.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"happy Rottweiler with a shiny collar standing on brown dirt with people in the background\"",
+    "image_id": "000000253386",
+    "image_path": "index/000000253386.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two people in colorful umbrellas sitting by the seaside with a small dog\"",
+    "image_id": "000000534270",
+    "image_path": "index/000000534270.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"adult elephant and baby elephant grazing in a green field near a pond with trees in the background\"",
+    "image_id": "000000347456",
+    "image_path": "index/000000347456.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"white toilet in a small bathroom with a shower and toilet paper holder\"",
+    "image_id": "000000234413",
+    "image_path": "index/000000234413.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"tabby cat looking into a toilet in a bathroom with a flamingo shower curtain and black and white checkered floor\"",
+    "image_id": "000000211042",
+    "image_path": "index/000000211042.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two draft horses plowing a field with a farmer in a rural setting\"",
+    "image_id": "000000132408",
+    "image_path": "index/000000132408.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"baseball player in blue jersey hitting a ball while umpire and catcher watch at a college field\"",
+    "image_id": "000000084031",
+    "image_path": "index/000000084031.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"bathroom countertop with dark granite, white sink, soap dispenser, and blue cleaning glove\"",
+    "image_id": "000000302760",
+    "image_path": "index/000000302760.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man in a suit holding a suitcase while a woman in a dress sits on a blue scooter in front of a hotel\"",
+    "image_id": "000000292456",
+    "image_path": "index/000000292456.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"surfer riding a wave at dusk with dark blue ocean background\"",
+    "image_id": "000000051976",
+    "image_path": "index/000000051976.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two snowboarders overlooking a snowy mountain landscape with a lake and cloudy sky\"",
+    "image_id": "000000451144",
+    "image_path": "index/000000451144.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"shirtless man in a baseball cap throwing a frisbee while holding a green bottle in a sunny park\"",
+    "image_id": "000000025057",
+    "image_path": "index/000000025057.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"woman sitting on floral armchair watching television in vintage living room with patterned wallpaper\"",
+    "image_id": "000000509699",
+    "image_path": "index/000000509699.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"old Dell laptop with blue screen error on a cluttered desk with papers and a printer\"",
+    "image_id": "000000063602",
+    "image_path": "index/000000063602.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"orange bowl of chicken noodle soup with green onions and crispy pork\"",
+    "image_id": "000000091654",
+    "image_path": "index/000000091654.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"colorful umbrellas and rain gear displayed in a shop window with a reflection of a person taking a photo\"",
+    "image_id": "000000370711",
+    "image_path": "index/000000370711.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"young boy sitting on a beige couch wrapped in a pink blanket holding a remote control\"",
+    "image_id": "000000096493",
+    "image_path": "index/000000096493.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"group of five friends posing with skis on a snowy slope at night\"",
+    "image_id": "000000470779",
+    "image_path": "index/000000470779.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"gray and white cat looking up next to a laptop on a desk with colorful storage drawers\"",
+    "image_id": "000000403817",
+    "image_path": "index/000000403817.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"lunch box with rice and chicken on a messy office desk with a laptop and calculator\"",
+    "image_id": "000000248314",
+    "image_path": "index/000000248314.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"train departure board with digital display and clock showing times and destinations in an Italian train station\"",
+    "image_id": "000000355169",
+    "image_path": "index/000000355169.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"couple posing next to a large suitcase sculpture with travel stickers in front of a Fidelity Investments building\"",
+    "image_id": "000000034139",
+    "image_path": "index/000000034139.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two hot dogs with sausage and lettuce on a white plate with parsley garnish\"",
+    "image_id": "000000226130",
+    "image_path": "index/000000226130.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man with long black hair throwing a red frisbee in a grassy backyard\"",
+    "image_id": "000000223955",
+    "image_path": "index/000000223955.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "I'm sorry, I can't assist with that.",
+    "image_id": "000000354307",
+    "image_path": "index/000000354307.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"people standing on a street with bicycles in the background, one person with a skateboard and a small dog on a leash\"",
+    "image_id": "000000279278",
+    "image_path": "index/000000279278.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"brown and white cows drinking from a river with geese swimming nearby in a green field\"",
+    "image_id": "000000314034",
+    "image_path": "index/000000314034.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"skier in red jacket skiing through deep powder snow on a mountain slope\"",
+    "image_id": "000000151051",
+    "image_path": "index/000000151051.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"young child in a red shirt holding a black bowl next to a plate of fried rice and red bowls on a dark wooden table\"",
+    "image_id": "000000578871",
+    "image_path": "index/000000578871.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"massive pepperoni pizza on a wooden board at a restaurant table with drinks\"",
+    "image_id": "000000329455",
+    "image_path": "index/000000329455.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"man playing fetch with a white dog while two boys watch in a green park\"",
+    "image_id": "000000509403",
+    "image_path": "index/000000509403.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"healthy meal prep with spinach, lentils, grilled chicken, broccoli, and black beans\"",
+    "image_id": "000000562197",
+    "image_path": "index/000000562197.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"modern bathroom with double sinks, dark wood cabinets, and a burgundy shower curtain\"",
+    "image_id": "000000006213",
+    "image_path": "index/000000006213.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"silhouetted surfers discussing on a beach with dark clouds and waves at sunset\"",
+    "image_id": "000000403584",
+    "image_path": "index/000000403584.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"cozy garden seating area with green chairs, a small table, and a laptop surrounded by lush greenery\"",
+    "image_id": "000000428280",
+    "image_path": "index/000000428280.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"teenager performing a skateboard trick in a skate park with spectators in the background\"",
+    "image_id": "000000067310",
+    "image_path": "index/000000067310.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"vintage neon sign for Cave restaurant and lounge against a clear blue sky\"",
+    "image_id": "000000404601",
+    "image_path": "index/000000404601.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"couple standing next to large suitcases outside a restaurant with a brick facade\"",
+    "image_id": "000000526728",
+    "image_path": "index/000000526728.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"close-up of several zebras with distinctive black and white stripes in a grassy savanna\"",
+    "image_id": "000000320632",
+    "image_path": "index/000000320632.jpg",
+    "source": "coco_val2017"
+  },
+  {
+    "query": "\"two giraffes eating leaves from a branch in a natural setting\"",
+    "image_id": "000000448448",
+    "image_path": "index/000000448448.jpg",
+    "source": "coco_val2017"
+  }
+]
