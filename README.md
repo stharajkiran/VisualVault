@@ -63,7 +63,7 @@ _Full architecture diagram added in Block 4C._
 _Docker Compose setup added in Block 1E._
 
 ```bash
-git clone https://github.com/your-username/visualvault
+git clone https://github.com/stharajkiran/visualvault
 cd visualvault
 cp .env.example .env   # fill in your values
 docker-compose up
@@ -71,11 +71,11 @@ docker-compose up
 
 ---
 
-## Project phases
+## Roadmap
 
-| Phase | Status | Resume line |
-|---|---|---|
-| 1 — Semantic Search Engine | 🔄 In progress (Block 1D next) | Semantic image search with CLIP + Qdrant, sub-50ms p95 latency |
-| 2 — Production Pipeline | ⬜ Not started | 500 img/min throughput, 4× TensorRT speedup, full observability |
-| 3 — Self-Healing System | ⬜ Not started | Drift detection, active learning loop, automated retraining |
-| 4 — Enterprise Platform | ⬜ Not started | Governance, real-time ingest, 34% tagging error reduction |
+| Phase | What it delivers |
+|---|---|
+| 1 — Semantic Search Engine | CLIP + Qdrant semantic search, live demo on HF Spaces |
+| 2 — Production Pipeline | 500 img/min throughput, 4× TensorRT speedup, Prometheus/Grafana observability |
+| 3 — Self-Healing System | Evidently AI drift detection, Label Studio active learning, automated YOLO retraining |
+| 4 — Enterprise Platform | Consent governance, real-time ingest, usage analytics, 34% tagging error reduction |
