@@ -88,8 +88,20 @@ Updated at the end of each block. Becomes the source material for DECISIONS.md (
 
 **Acceptance criterion:** `uvicorn app.api.main:app --reload` → Swagger UI at `/docs` → `POST /upload` returns tags + caption, `GET /search` returns ranked results. ✅
 
-### Block 1D — React frontend ⬜
-### Block 1D — React frontend ⬜
+### Block 1D — Streamlit UI ✅
+
+**What was built:**
+- `app/ui/app.py` — two-page Streamlit app: Upload (image → tags + caption) and Search (query → image grid)
+- Upload page calls `POST /upload`, displays tags with confidence and BLIP-2 caption
+- Search page calls `GET /search`, displays results in a 4-column image grid with similarity scores
+
+**Decisions made:**
+- Streamlit chosen over React — project goal is to demonstrate CV skills, not frontend skills
+- Gradio (originally planned for HF Spaces) replaced by Streamlit — one UI framework instead of two
+- UI is a pure HTTP client — talks to FastAPI over localhost, does not load models itself
+
+**Acceptance criterion:** `streamlit run app/ui/app.py` → upload image → see tags + caption; type query → see image grid. ✅
+
 ### Block 1E — Docker Compose + HF Spaces ⬜
 
 ---
