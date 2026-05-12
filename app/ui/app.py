@@ -12,12 +12,16 @@ Requires the FastAPI backend to be running:
     uvicorn app.api.main:app --reload
 """
 
+import os
+import time
 import httpx
 import streamlit as st
 from pathlib import Path
 
-API_BASE = "http://localhost:8000"
-DATA_INDEX_DIR = Path(__file__).parent.parent.parent / "data" / "index"
+# Reads from environment variable so it works both locally and inside Docker.
+# Locally: API_BASE defaults to localhost. In Docker: set to http://api:8000.
+API_BASE = os.getenv("API_BASE", "http://localhost:8000")
+DATA_INDEX_DIR = Path(os.getenv("DATA_INDEX_DIR", str(Path(__file__).parent.parent.parent / "data" / "index")))
 
 st.set_page_config(page_title="VisualVault", layout="wide")
 st.title("VisualVault")
@@ -39,22 +43,39 @@ if page == "Upload":
             st.image(uploaded_file, caption="Uploaded image", use_container_width=True)
 
         with col2:
-            with st.spinner("Running pipeline..."):
+            with st.spinner("Uploading and processing..."):
                 try:
+                    # POST /upload returns immediately with a job_id
                     response = httpx.post(
                         f"{API_BASE}/upload",
                         files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)},
-                        timeout=60,
+                        timeout=30,
                     )
                     response.raise_for_status()
-                    result = response.json()
+                    job_id = response.json()["job_id"]
 
-                    st.subheader("Results")
-                    st.write(f"**Caption:** {result['caption']}")
-                    st.write("**Tags:**")
-                    for tag in result["tags"]:
-                        st.write(f"- {tag['label']} ({tag['confidence']:.0%} confidence)")
-                    st.caption(f"Pipeline time: {result['processing_ms']:.0f}ms")
+                    # Poll GET /jobs/{job_id} until pipeline finishes
+                    result = None
+                    for _ in range(60):
+                        job = httpx.get(f"{API_BASE}/jobs/{job_id}", timeout=10).json()
+                        if job["status"] == "SUCCESS":
+                            result = job["result"]
+                            break
+                        elif job["status"] == "FAILURE":
+                            st.error(f"Pipeline failed: {job.get('error')}")
+                            result = None
+                            break
+                        time.sleep(1)
+                    else: # this is for-else on the for loop: runs if we exit the loop without hitting break
+                        st.error("Pipeline timed out after 60 seconds.")
+                        result = None
+
+                    if result:
+                        st.subheader("Results")
+                        st.write(f"**Caption:** {result['caption']}")
+                        st.write("**Tags:**")
+                        for tag in result["tags"]:
+                            st.write(f"- {tag['label']} ({tag['confidence']:.0%} confidence)")
 
                 except httpx.ConnectError:
                     st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")

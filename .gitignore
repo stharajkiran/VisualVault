@@ -25,6 +25,14 @@ data/qdrant_storage/
 !data/ood_test/.gitkeep
 !data/corrections/.gitkeep
 
+# Models and files
+md_files/
+CLAUDE.md
+DECISIONS.md
+IMPLEMENTATION.md
+IMPLEMENTATION.md
+artifacts/
+
 # Model cache (HuggingFace, Ultralytics)
 .cache/
 *.pt
@@ -45,3 +53,6 @@ logs/
 
 # MLflow (Phase 3)
 mlruns/
+
+
+

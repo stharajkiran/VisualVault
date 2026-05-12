@@ -3,8 +3,9 @@ import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
-COLLECTION_NAME = "visualvault"
-VECTOR_DIM = 512
+from app.embedding.config import CLIPConfig
+
+
 HOST = os.getenv("QDRANT_HOST", "localhost")
 PORT = int(os.getenv("QDRANT_PORT", "6333"))
 
@@ -19,7 +20,7 @@ def get_client() -> QdrantClient:
     return QdrantClient(host=HOST, port=PORT)
 
 
-def create_collection(client: QdrantClient) -> None:
+def create_collection(client: QdrantClient, config:CLIPConfig) -> None:
     """
     Create the visualvault collection if it does not already exist.
 
@@ -28,18 +29,18 @@ def create_collection(client: QdrantClient) -> None:
     is the right metric for semantic similarity (magnitude doesn't matter, direction does).
     """
     existing = [c.name for c in client.get_collections().collections]
-    if COLLECTION_NAME in existing:
-        print(f"[Qdrant] Collection '{COLLECTION_NAME}' already exists, skipping creation.")
+    if config.collection_name in existing:
+        print(f"[Qdrant] Collection '{config.collection_name}' already exists, skipping creation.")
         return
 
     client.create_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config=VectorParams(size=VECTOR_DIM, distance=Distance.COSINE),
+        collection_name=config.collection_name,
+        vectors_config=VectorParams(size=config.embedding_dim, distance=Distance.COSINE),
     )
-    print(f"[Qdrant] Created collection '{COLLECTION_NAME}' ({VECTOR_DIM}-dim, cosine).")
+    print(f"[Qdrant] Created collection '{config.collection_name}' ({config.embedding_dim}-dim, cosine).")
 
 
-def upsert(client: QdrantClient, image_id: int, embedding: np.ndarray, payload: dict) -> None:
+def upsert(client: QdrantClient, config: CLIPConfig, image_id: int, embedding: np.ndarray, payload: dict) -> None:
     """
     Insert or update a single image embedding in Qdrant.
 
@@ -56,10 +57,10 @@ def upsert(client: QdrantClient, image_id: int, embedding: np.ndarray, payload: 
         vector=embedding.tolist(),
         payload=payload,
     )
-    client.upsert(collection_name=COLLECTION_NAME, points=[point])
+    client.upsert(collection_name=config.collection_name, points=[point])
 
 
-def search(client: QdrantClient, query_vector: np.ndarray, top_k: int = 10) -> list[dict]:
+def search(client: QdrantClient, config: CLIPConfig, query_vector: np.ndarray, top_k: int = 10) -> list[dict]:
     """
     Find the top-k most similar images to a query vector.
 
@@ -75,7 +76,7 @@ def search(client: QdrantClient, query_vector: np.ndarray, top_k: int = 10) -> l
         List of dicts with keys: id, score, filename, image_path.
     """
     results = client.query_points(
-        collection_name=COLLECTION_NAME,
+        collection_name=config.collection_name,
         query=query_vector.tolist(),
         limit=top_k,
     ).points

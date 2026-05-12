@@ -3,7 +3,7 @@
 **Semantic image and video search platform for marketing teams.**  
 Upload images, get automatic tags and captions. Search your entire library in plain English.
 
-> Live demo: _coming after Phase 1 deployment_
+[![HF Spaces](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/kstha/visualvault-demo)
 
 ---
 
@@ -75,7 +75,7 @@ docker-compose up
 
 | Phase | What it delivers |
 |---|---|
-| 1 — Semantic Search Engine | CLIP + Qdrant semantic search, live demo on HF Spaces |
-| 2 — Production Pipeline | 500 img/min throughput, 4× TensorRT speedup, Prometheus/Grafana observability |
+| 1 — Semantic Search Engine ✅ | CLIP + Qdrant semantic search, live demo on HF Spaces |
+| 2 — Production Pipeline 🔄 | 500 img/min throughput, 4× TensorRT speedup, Prometheus/Grafana observability |
 | 3 — Self-Healing System | Evidently AI drift detection, Label Studio active learning, automated YOLO retraining |
 | 4 — Enterprise Platform | Consent governance, real-time ingest, usage analytics, 34% tagging error reduction |

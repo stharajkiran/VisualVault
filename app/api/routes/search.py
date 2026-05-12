@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from app.api.models import SearchResponse, SearchResult
-from app.pipeline import clip, qdrant as qdrant_pipeline
+from app.embedding.config import CLIP_BASE
+from app.embedding.registry import registry
+from app.vector_store import qdrant as qdrant_pipeline
 
 router = APIRouter()
 
@@ -28,8 +30,8 @@ async def search_images(request: Request, query: str, top_k: int = 10) -> Search
     top_k = min(top_k, 50)  # cap to prevent runaway requests
 
     state = request.app.state
-    query_vector = clip.embed_text(query, state.clip_model, state.clip_processor)
-    raw_results = qdrant_pipeline.search(state.qdrant_client, query_vector, top_k=top_k)
+    query_vector = registry.get_active().embed_text(query)
+    raw_results = qdrant_pipeline.search(state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k)
 
     results = [
         SearchResult(

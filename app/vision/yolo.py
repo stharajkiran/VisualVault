@@ -5,7 +5,7 @@ from PIL import Image
 from ultralytics import YOLO
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-MODEL_NAME = "yolo11n.pt"
+MODEL_NAME = "artifacts/models/yolo11n.pt"
 CONFIDENCE_THRESHOLD = 0.25
 
 
@@ -71,7 +71,7 @@ def detect(image: Image.Image, model: YOLO) -> list[tuple[str, float]]:
 
 if __name__ == "__main__":
     from PIL import Image
-    from app.pipeline.yolo import load_model, detect
+    from app.vision.yolo import load_model, detect
     model = load_model()
     # img = Image.new('RGB', (640, 640), color=(200, 200, 200))
     # load image from assets

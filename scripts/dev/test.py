@@ -1,5 +1,6 @@
 import time
-from app.pipeline import clip, qdrant as q
+from app.embedding import clip_pytorch as clip
+from app.vector_store import qdrant as q
 
 client = q.get_client()
 model, processor = clip.load_model()

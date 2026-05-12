@@ -45,7 +45,7 @@ def embed_image(image: Image.Image, model: CLIPModel, processor: CLIPProcessor) 
     vec = features.pooler_output.squeeze().cpu().numpy().astype(np.float32)
     vec = vec / np.linalg.norm(vec)
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[CLIP] embed_image: {elapsed:.1f}ms, shape={vec.shape}, norm={np.linalg.norm(vec):.4f}")
+    # print(f"[CLIP] embed_image: {elapsed:.1f}ms, shape={vec.shape}, norm={np.linalg.norm(vec):.4f}")
     return vec
 
 
@@ -79,7 +79,7 @@ def embed_text(query: str, model: CLIPModel, processor: CLIPProcessor) -> np.nda
 
 if __name__ == "__main__":
     from PIL import Image
-    from app.pipeline.clip import load_model, embed_image, embed_text
+    from app.embedding.clip_pytorch import load_model, embed_image, embed_text
     model, processor = load_model()
     img = Image.new('RGB', (224, 224), color=(128, 128, 128))
     img_vec = embed_image(img, model, processor)

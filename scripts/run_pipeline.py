@@ -10,7 +10,8 @@ import time
 from pathlib import Path
 from PIL import Image
 
-from app.pipeline import clip, yolo, blip
+from app.embedding import clip_pytorch as clip
+from app.vision import yolo, blip
 
 
 def main(image_path: str) -> None:
