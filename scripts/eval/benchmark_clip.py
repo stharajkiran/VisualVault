@@ -42,7 +42,7 @@ for _ in range(RUNS):
 
 pre_p50 = np.percentile(latencies, 50)
 pre_p95 = np.percentile(latencies, 95)
-print(f"\nPreprocessing (CPU, excluded from inference timing below)")
+print("\nPreprocessing (CPU, excluded from inference timing below)")
 print(f"  p50: {pre_p50:.2f}ms  p95: {pre_p95:.2f}ms")
 
 # Pre-process once — used as input for both inference benchmarks
@@ -73,7 +73,7 @@ for _ in range(RUNS):
 
 pt_p50 = np.percentile(latencies, 50)
 pt_p95 = np.percentile(latencies, 95)
-print(f"\nPyTorch inference (forward + CPU transfer + normalize)")
+print("\nPyTorch inference (forward + CPU transfer + normalize)")
 print(f"  p50: {pt_p50:.2f}ms  p95: {pt_p95:.2f}ms")
 
 ###################################################################################################
@@ -104,7 +104,7 @@ for _ in range(RUNS):
 
 trt_p50 = np.percentile(latencies, 50)
 trt_p95 = np.percentile(latencies, 95)
-print(f"\nTensorRT inference (execute + CPU transfer + normalize)")
+print("\nTensorRT inference (execute + CPU transfer + normalize)")
 print(f"  p50: {trt_p50:.2f}ms  p95: {trt_p95:.2f}ms")
 
 # ── Summary ──

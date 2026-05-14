@@ -16,7 +16,7 @@ import mlflow
 
 def log_recall_runs(tracking_uri: str) -> None:
     mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment("recall-evaluation")
+    mlflow.set_experiment("visualvault/recall-evaluation")
 
     with mlflow.start_run(run_name="clip-b32-coco-val"):
         mlflow.log_params({
@@ -55,7 +55,7 @@ def log_recall_runs(tracking_uri: str) -> None:
 
 def log_inference_benchmark_runs(tracking_uri: str) -> None:
     mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment("inference-benchmark")
+    mlflow.set_experiment("visualvault/inference-benchmark")
 
     with mlflow.start_run(run_name="clip-b32-pytorch"):
         mlflow.log_params({
@@ -108,7 +108,7 @@ def log_inference_benchmark_runs(tracking_uri: str) -> None:
 
 def log_drift_runs(tracking_uri: str) -> None:
     mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment("drift-detection")
+    mlflow.set_experiment("visualvault/drift-detection")
 
     with mlflow.start_run(run_name="ood-test-batch"):
         mlflow.log_params({

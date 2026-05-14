@@ -50,10 +50,10 @@ def main() -> None:
     for img in holdout_images:
         shutil.copy2(img, HOLDOUT_DIR / img.name)
 
-    print(f"\nDone.")
+    print("\nDone.")
     print(f"  data/index/   : {len(list(INDEX_DIR.glob('*.jpg')))} images")
     print(f"  data/holdout/ : {len(list(HOLDOUT_DIR.glob('*.jpg')))} images")
-    print(f"\nCommit this split with git before indexing anything.")
+    print("\nCommit this split with git before indexing anything.")
 
 
 if __name__ == "__main__":

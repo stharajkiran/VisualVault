@@ -4,7 +4,6 @@ Run once: python scripts/download_coco.py
 """
 
 import zipfile
-import shutil
 from pathlib import Path
 import urllib.request
 

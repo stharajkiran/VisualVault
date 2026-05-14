@@ -124,7 +124,7 @@ def main() -> None:
     print(f"{'='*45}")
 
     if misses:
-        print(f"\nSample misses (first 5):")
+        print("\nSample misses (first 5):")
         for m in misses[:5]:
             print(f"  [{m['image_id']}] {m['query']}")
 

@@ -37,15 +37,12 @@ def embed_image(image: Image.Image, model: CLIPModel, processor: CLIPProcessor) 
     Returns:
         np.ndarray of shape (512,), dtype float32, L2-norm = 1.0.
     """
-    t0 = time.perf_counter()
     # The processor handles resizing, cropping, and normalization. It returns a dict of tensors,
     inputs = processor(images=image, return_tensors="pt").to(DEVICE)
     with torch.no_grad():
         features = model.get_image_features(**inputs)
     vec = features.pooler_output.squeeze().cpu().numpy().astype(np.float32)
     vec = vec / np.linalg.norm(vec)
-    elapsed = (time.perf_counter() - t0) * 1000
-    # print(f"[CLIP] embed_image: {elapsed:.1f}ms, shape={vec.shape}, norm={np.linalg.norm(vec):.4f}")
     return vec
 
 

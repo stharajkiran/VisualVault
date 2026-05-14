@@ -128,7 +128,7 @@ def main():
     print(f"  Failed      : {summary['failed']}")
     print(f"  Wall time   : {wall_total:.1f}s")
     print(f"  Throughput  : {imgs_per_sec:.1f} img/s  ({imgs_per_min:.0f} img/min)")
-    print(f"\n  Target      : 500 img/min (requires Docker worker with prefork)")
+    print("\n  Target      : 500 img/min (requires Docker worker with prefork)")
 
     if imgs_per_min >= 500:
         print("  RESULT: target met ✓")
