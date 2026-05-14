@@ -16,6 +16,7 @@ data/holdout/
 data/ood_test/
 data/corrections/
 data/qdrant_storage/
+data/embeddings/
 
 # Keep the eval contract and folder structure
 !data/eval_pairs.json
