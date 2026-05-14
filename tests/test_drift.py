@@ -28,7 +28,7 @@ def test_compute_baseline_shape():
     vecs = [np.random.rand(512).astype(np.float32) for _ in range(5)]
     client = _make_qdrant_client(vecs)
     baseline = compute_baseline(client, MagicMock())
-    assert baseline.shape == (256,)
+    assert baseline.shape == (512,)
 
 
 def test_compute_baseline_value():
