@@ -26,22 +26,29 @@ client = TestClient(_app)
 
 # ── Pure-logic tests ───────────────────────────────────────────────────────────
 
-@pytest.mark.parametrize("idx,expected_ts", [
-    (0, 0),
-    (1, 2),
-    (5, 10),
-    (14, 28),
-])
+
+@pytest.mark.parametrize(
+    "idx,expected_ts",
+    [
+        (0, 0),
+        (1, 2),
+        (5, 10),
+        (14, 28),
+    ],
+)
 def test_timestamp_formula(idx: int, expected_ts: int):
     """Frame index maps to correct timestamp: idx * 2 seconds."""
     assert idx * 2 == expected_ts
 
 
-@pytest.mark.parametrize("stem,idx,expected", [
-    ("myvideo", 0, "myvideo_t0s.jpg"),
-    ("myvideo", 3, "myvideo_t6s.jpg"),
-    ("clip-demo", 1, "clip-demo_t2s.jpg"),
-])
+@pytest.mark.parametrize(
+    "stem,idx,expected",
+    [
+        ("myvideo", 0, "myvideo_t0s.jpg"),
+        ("myvideo", 3, "myvideo_t6s.jpg"),
+        ("clip-demo", 1, "clip-demo_t2s.jpg"),
+    ],
+)
 def test_frame_filename_format(stem: str, idx: int, expected: str):
     """Frame filename encodes video stem and timestamp correctly."""
     timestamp_s = idx * 2
@@ -65,10 +72,16 @@ def test_frame_glob_sorted():
 
 def test_allowed_video_types_contains_common_formats():
     """ALLOWED_VIDEO_TYPES covers MP4, MOV, AVI, and WebM."""
-    assert ALLOWED_VIDEO_TYPES == {"video/mp4", "video/quicktime", "video/x-msvideo", "video/webm"}
+    assert ALLOWED_VIDEO_TYPES == {
+        "video/mp4",
+        "video/quicktime",
+        "video/x-msvideo",
+        "video/webm",
+    }
 
 
 # ── Endpoint tests ─────────────────────────────────────────────────────────────
+
 
 def test_upload_video_rejects_image_content_type():
     """POST /upload/video with image/jpeg returns 422."""
@@ -112,6 +125,7 @@ def test_upload_video_dispatches_single_task():
 
 # ── Task tests ─────────────────────────────────────────────────────────────────
 
+
 def test_ingest_video_returns_all_frames(tmp_path):
     """ingest_video processes every extracted frame and returns results for each."""
     for i in range(1, 4):
@@ -125,7 +139,9 @@ def test_ingest_video_returns_all_frames(tmp_path):
         patch("app.worker.tasks.ingest_image") as mock_ingest,
     ):
         mock_tmpdir.return_value.__enter__.return_value = str(tmp_path)
-        mock_ffmpeg.input.return_value.filter.return_value.output.return_value.run.return_value = None
+        mock_ffmpeg.input.return_value.filter.return_value.output.return_value.run.return_value = (
+            None
+        )
         mock_ingest.return_value = fake_result
 
         result = ingest_video("myvideo.mp4", b"fake-video-bytes")
@@ -148,7 +164,9 @@ def test_ingest_video_passes_correct_timestamps(tmp_path):
         patch("app.worker.tasks.ingest_image") as mock_ingest,
     ):
         mock_tmpdir.return_value.__enter__.return_value = str(tmp_path)
-        mock_ffmpeg.input.return_value.filter.return_value.output.return_value.run.return_value = None
+        mock_ffmpeg.input.return_value.filter.return_value.output.return_value.run.return_value = (
+            None
+        )
         mock_ingest.return_value = fake_result
 
         ingest_video("myvideo.mp4", b"fake-video-bytes")
