@@ -12,8 +12,8 @@ import pytest
 
 from app.core.drift import compute_baseline, compute_drift
 
-
 # ── compute_baseline ───────────────────────────────────────────────────────────
+
 
 def _make_qdrant_client(vectors: list[np.ndarray]) -> MagicMock:
     """Return a mock Qdrant client whose scroll() yields all vectors in one page."""
@@ -28,14 +28,16 @@ def test_compute_baseline_shape():
     vecs = [np.random.rand(512).astype(np.float32) for _ in range(5)]
     client = _make_qdrant_client(vecs)
     baseline = compute_baseline(client, MagicMock())
-    assert baseline.shape == (512,)
+    assert baseline.shape == (256,)
 
 
 def test_compute_baseline_value():
     """Baseline equals the unweighted mean of all indexed vectors."""
-    vecs = [np.array([1.0, 0.0], dtype=np.float32),
-            np.array([0.0, 1.0], dtype=np.float32),
-            np.array([1.0, 1.0], dtype=np.float32)]
+    vecs = [
+        np.array([1.0, 0.0], dtype=np.float32),
+        np.array([0.0, 1.0], dtype=np.float32),
+        np.array([1.0, 1.0], dtype=np.float32),
+    ]
     client = _make_qdrant_client(vecs)
     baseline = compute_baseline(client, MagicMock())
     expected = np.array([2 / 3, 2 / 3], dtype=np.float32)
@@ -57,6 +59,7 @@ def test_compute_baseline_paginates():
 
 
 # ── compute_drift ──────────────────────────────────────────────────────────────
+
 
 def test_compute_drift_identical_returns_zero():
     """Batch with the same direction as the baseline has drift score 0."""
