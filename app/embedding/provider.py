@@ -160,7 +160,7 @@ class CLIPTensorRTProvider(EmbeddingProvider):
         import tensorrt as trt
 
         if config.engine_path is None:
-            raise ValueError(f"CLIPTensorRTProvider requires engine_path in config — got None")
+            raise ValueError("CLIPTensorRTProvider requires engine_path in config — got None")
 
         self._config = config
         self._processor: CLIPProcessor = CLIPProcessor.from_pretrained(config.model_id)

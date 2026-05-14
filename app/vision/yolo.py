@@ -1,5 +1,4 @@
 import time
-import numpy as np
 import torch
 from PIL import Image
 from ultralytics import YOLO
