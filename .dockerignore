@@ -1,0 +1,37 @@
+# Python environment — never copy into image
+.venv/
+
+# Large data directories — not needed at runtime
+data/raw/
+data/index/
+data/holdout/
+data/embeddings/
+data/ood_test/
+data/corrections/
+
+# Python bytecode
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Dev artifacts
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Local dev tools
+spaces/
+md_files/
+tests/
+scripts/
