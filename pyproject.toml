@@ -8,60 +8,88 @@ version = "0.1.0"
 description = "Semantic image and video search platform"
 requires-python = ">=3.11"
 dependencies = [
-    # Core ML models
-    "torch>=2.11.0",
-    "torchvision>=0.20.0",
-    "transformers>=4.40.0", # CLIP + BLIP-2
-    "ultralytics>=8.3.0", # YOLO11
-    "Pillow>=10.0.0",
-    # Vector database
-    "qdrant-client>=1.9.0",
     # API serving
     "fastapi>=0.111.0",
     "uvicorn[standard]>=0.30.0",
     "pydantic>=2.7.0",
     "python-multipart>=0.0.9",
-    # Database
-    "psycopg2-binary>=2.9.0",
-    "sqlalchemy>=2.0.0",
-    "alembic>=1.13.0",
-    # Object storage (MinIO via S3-compatible API)
-    "boto3>=1.34.0",
     # Async task queue
     "celery[redis]>=5.4.0",
     "redis>=5.0.0",
-    # MLOps
-    "mlflow>=2.13.0",
-    "dvc[s3]>=3.51.0",
+    # Vector database
+    "qdrant-client>=1.9.0",
     # Monitoring
     "prometheus-fastapi-instrumentator>=7.1.0",
     "prometheus-client>=0.20.0",
-    # Video processing
-    "ffmpeg-python>=0.2.0",
-    "opencv-python-headless>=4.9.0",
-    # Drift detection (Phase 3)
-    "evidently>=0.4.0",
-    # Frontend
-    "streamlit>=1.35.0",
     # Utilities
-    "numpy>=1.26.0",
-    "scikit-learn>=1.4.0",
-    "tqdm>=4.66.0",
-    "python-dotenv>=1.0.0",
     "httpx>=0.27.0",
-    "openai>=2.36.0",
-    "onnx>=1.21.0",
-    "onnxscript>=0.7.0",
-    "tensorrt>=10.16.1.11",
-    "cuda-python>=12.9.6",
+    "python-dotenv>=1.0.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.26.0",
+    "tqdm>=4.66.0",
 ]
 
 [project.optional-dependencies]
+
+# API image — text encoder only (for search queries)
+ml-api = [
+    "torch>=2.11.0",
+    "transformers>=4.40.0",
+]
+
+# Worker image — full inference pipeline
+ml-worker = [
+    "torch>=2.11.0",
+    "torchvision>=0.20.0",
+    "transformers>=4.40.0",
+    "ultralytics>=8.3.0",
+    "scikit-learn>=1.4.0",
+    "ffmpeg-python>=0.2.0",
+]
+
+# GPU optimization — Worker only, runtime TRT inference
+gpu = [
+    "tensorrt-cu12>=10.0.0",
+    "onnx>=1.21.0",
+    "cuda-python>=12.0.0,<13.0.0",
+]
+
+# UI image — lightweight frontend only
+ui = [
+    "streamlit>=1.35.0",
+]
+
+# Relational database — when PostgreSQL lands
+db = [
+    "psycopg2-binary>=2.9.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+]
+
+# Object storage — when MinIO lands
+storage = [
+    "boto3>=1.34.0",
+]
+
+# Experiment tracking + data versioning — Phase 3
+tracking = [
+    "mlflow>=2.13.0",
+    "dvc[s3]>=3.51.0",
+]
+
+# Drift detection — Phase 3
+monitoring = [
+    "evidently>=0.4.0",
+]
+
+# Local development + model export scripts
 dev = [
     "pytest>=8.2.0",
     "pytest-asyncio>=0.23.0",
-    "httpx>=0.27.0",
     "ruff>=0.4.0",
+    "httpx>=0.27.0",
+    "openai>=2.36.0",
+    "onnxscript>=0.7.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -75,9 +103,27 @@ testpaths = ["tests"]
 line-length = 100
 target-version = "py311"
 
+[tool.uv]
+conflicts = [
+    [
+        { extra = "ml-api" },
+        { extra = "ml-worker" },
+    ],
+]
+
 [tool.uv.sources]
-torch = { index = "pytorch-cuda" }
-torchvision = { index = "pytorch-cuda" }
+torch = [
+    { index = "pytorch-cpu", extra = "ml-api" },
+    { index = "pytorch-cuda", extra = "ml-worker" },
+]
+torchvision = [
+    { index = "pytorch-cuda", extra = "ml-worker" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [[tool.uv.index]]
 name = "pytorch-cuda"

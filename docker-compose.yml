@@ -5,7 +5,6 @@ services:
     ports:
       - "6333:6333"
     volumes:
-      # Persist Qdrant vectors across container restarts
       - ./data/qdrant_storage:/qdrant/storage
 
   redis:
@@ -14,7 +13,10 @@ services:
       - "6379:6379"
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    image: visualvault-api:latest
     command: uv run uvicorn app.api.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
@@ -23,9 +25,7 @@ services:
       - QDRANT_PORT=6333
       - REDIS_URL=redis://redis:6379/0
     volumes:
-      # Mount data/ so the API can read image files
       - ./data:/app/data
-      # Persist downloaded model weights across rebuilds
       - model_cache:/cache
     depends_on:
       - qdrant
@@ -34,7 +34,10 @@ services:
       - .env
 
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    image: visualvault-worker:latest
     command: uv run celery -A app.worker.celery_app.celery_app worker --loglevel=info
     environment:
       - QDRANT_HOST=qdrant
@@ -42,7 +45,6 @@ services:
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./data:/app/data
-      # Share model weights with the API container — no double download
       - model_cache:/cache
     depends_on:
       - redis
@@ -51,12 +53,14 @@ services:
       - .env
 
   ui:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/ui/Dockerfile
+    image: visualvault-ui:latest
     command: uv run streamlit run app/ui/app.py --server.port 8501 --server.address 0.0.0.0
     ports:
       - "8501:8501"
     environment:
-      # Containers talk to each other via service name, not localhost
       - API_BASE=http://api:8000
       - DATA_INDEX_DIR=/app/data/index
     volumes:
@@ -70,6 +74,7 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml
     depends_on:
       - api
 
@@ -81,6 +86,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
 

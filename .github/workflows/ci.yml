@@ -1,0 +1,61 @@
+# CI runs on every push to main and every pull request targeting main.
+# Three jobs run in parallel on separate GitHub-hosted Ubuntu machines.
+name: CI
+
+on:
+  push:
+    branches: [main]      # runs when you push directly to main
+  pull_request:
+    branches: [main]      # runs when a PR targets main
+
+jobs:
+
+  # ── Job 1: Lint ───────────────────────────────────────────────────────────
+  # Checks code style and catches obvious errors with ruff.
+  # Runs first because it's fast (~10s) — no need to wait for slow test job.
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest    # fresh Ubuntu VM provided by GitHub
+    steps:
+      - uses: actions/checkout@v4          # clone the repo onto the runner
+      - uses: astral-sh/setup-uv@v3        # install uv on the runner
+        with:
+          enable-caching: true             # cache downloads between runs
+      - name: Run ruff
+        run: uv run --with ruff ruff check .   # lint every .py file
+
+  # ── Job 2: Test ───────────────────────────────────────────────────────────
+  # Installs dependencies and runs pytest on all three test files.
+  # Uses CPU torch (not CUDA) to keep CI fast — no GPU on GitHub runners.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-caching: true
+      - name: Install FFmpeg
+        # test_benchmark_video.py runs real FFmpeg — must be installed as a system package
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - name: Install Python deps (CPU torch for CI speed)
+        env:
+          UV_TORCH_BACKEND: cpu    # overrides pytorch-cuda index → installs ~200MB CPU torch
+        run: uv sync --extra ml-worker --extra dev
+      - name: Run tests
+        env:
+          PYTHONPATH: .    # makes scripts/ importable (needed by test_benchmark_video.py)
+        run: uv run pytest tests/ -v --tb=short
+
+  # ── Job 3: Docker Build Check ─────────────────────────────────────────────
+  # Builds API and UI images to confirm Dockerfiles are valid.
+  # Worker is skipped — 24GB image would exceed GitHub's 6-minute job limit.
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f docker/api/Dockerfile -t visualvault-api:ci .
+      - name: Build UI image
+        run: docker build -f docker/ui/Dockerfile -t visualvault-ui:ci .

@@ -9,7 +9,9 @@ router = APIRouter()
 
 
 @router.get("/search", response_model=SearchResponse)
-async def search_images(request: Request, query: str, top_k: int = 10) -> SearchResponse:
+async def search_images(
+    request: Request, query: str, top_k: int = 10
+) -> SearchResponse:
     """
     Search the image index using a natural language query.
 
@@ -31,13 +33,16 @@ async def search_images(request: Request, query: str, top_k: int = 10) -> Search
 
     state = request.app.state
     query_vector = registry.get_active().embed_text(query)
-    raw_results = qdrant_pipeline.search(state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k)
+    raw_results = qdrant_pipeline.search(
+        state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k
+    )
 
     results = [
         SearchResult(
             filename=r["filename"],
             image_path=r["image_path"],
             score=round(r["score"], 4),
+            timestamp_s=r.get("timestamp_s"),
         )
         for r in raw_results
     ]

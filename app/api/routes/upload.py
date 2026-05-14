@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile
 
-from app.worker.tasks import ingest_image
+from app.worker.celery_app import celery_app
 
 router = APIRouter()
 
@@ -28,5 +28,8 @@ async def upload_image(file: UploadFile) -> dict:
             detail=f"Unsupported file type '{file.content_type}'. Use JPEG, PNG, or WebP.",
         )
     contents = await file.read()
-    result = ingest_image.delay(file.filename, contents)
+    result = celery_app.send_task(
+        "app.worker.tasks.ingest_image",
+        args=[file.filename, contents],
+    )
     return {"job_id": result.id}

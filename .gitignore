@@ -32,7 +32,7 @@ DECISIONS.md
 IMPLEMENTATION.md
 IMPLEMENTATION.md
 artifacts/
-
+Agents.md
 # Model cache (HuggingFace, Ultralytics)
 .cache/
 *.pt
