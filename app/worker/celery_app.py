@@ -1,4 +1,6 @@
+"""Celery app — Redis broker, beat schedule, worker Prometheus metrics."""
 import os
+from datetime import timedelta
 
 from celery import Celery
 from celery.signals import worker_ready
@@ -14,6 +16,13 @@ celery_app = Celery(
     backend=REDIS_URL,
     include=["app.worker.tasks"],
 )
+
+celery_app.conf.beat_schedule = {
+    "check-and-retrain-daily": {
+        "task": "app.worker.tasks.check_and_retrain",
+        "schedule": timedelta(hours=24),
+    },
+}
 
 
 @worker_ready.connect

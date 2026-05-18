@@ -1,3 +1,4 @@
+"""POST /drift/detect — embeds a folder with CLIP and reports cosine drift vs index baseline."""
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request

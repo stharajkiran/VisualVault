@@ -1,41 +1,35 @@
+"""Embedding drift — baseline computation from numpy cache and cosine distance scoring."""
+
+from pathlib import Path
+
 import numpy as np
 from qdrant_client import QdrantClient
 
 from app.embedding.config import CLIPConfig
 
+# Embeddings exported by scripts/data/export_embeddings.py — COCO images only.
+# To update the baseline: re-run export_embeddings.py then restart the API.
+_EMBEDDINGS_PATH = Path("data/embeddings/embeddings.npy")
+
 
 def compute_baseline(client: QdrantClient, config: CLIPConfig) -> np.ndarray:
     """
-    Compute the mean CLIP embedding across all indexed images in a Qdrant collection.
+    Return the mean CLIP embedding across all COCO-indexed images.
 
-    Scrolls the collection in pages of 256 points, collecting every stored vector,
-    then returns their unweighted mean. The result is NOT L2-normalized — the mean
-    of unit vectors is generally not a unit vector.
+    Loads from the pre-exported numpy file at data/embeddings/embeddings.npy — fast,
+    Qdrant-independent, and COCO-only by construction (uploads are never exported).
+    The baseline is intentionally stable: it represents the reference distribution
+    that new uploads are measured against. To update it, re-run export_embeddings.py.
 
     Args:
-        client (QdrantClient): Connected Qdrant client.
-        config (CLIPConfig): Collection config — collection_name is used for the query.
+        client (QdrantClient): Unused — kept for interface compatibility.
+        config (CLIPConfig): Unused — kept for interface compatibility.
 
     Returns:
         np.ndarray: Mean embedding vector, shape (embedding_dim,).
     """
-    vectors: list[list[float]] = []
-    offset = None
-
-    while True:
-        results, next_offset = client.scroll(
-            collection_name=config.collection_name,
-            with_vectors=True,
-            limit=256,
-            offset=offset,
-        )
-        for point in results:
-            vectors.append(point.vector)
-        if next_offset is None:
-            break
-        offset = next_offset
-
-    return np.array(vectors, dtype=np.float32).mean(axis=0)
+    embeddings = np.load(_EMBEDDINGS_PATH)
+    return embeddings.mean(axis=0).astype(np.float32)
 
 
 def compute_drift(batch_embeddings: list[np.ndarray], baseline: np.ndarray) -> float:

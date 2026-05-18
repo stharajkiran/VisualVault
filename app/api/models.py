@@ -27,15 +27,17 @@ class UploadResponse(BaseModel):
 
 class SearchResult(BaseModel):
     """
-    A single result returned by GET /search.
+    A single result returned by GET /search or GET /similar/{asset_id}.
 
     Args:
+        id (int): Qdrant point ID — used by the UI to call GET /similar/{asset_id}.
         filename (str): Image filename in the index.
         image_path (str): Relative path to the image file on disk.
         score (float): Cosine similarity score between query and image (0–1).
         timestamp_s (float | None): Seconds from video start for keyframes; None for images.
     """
 
+    id: int
     filename: str
     image_path: str
     score: float

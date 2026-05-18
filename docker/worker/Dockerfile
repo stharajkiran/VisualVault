@@ -17,11 +17,12 @@ RUN pip install uv --no-cache-dir
 COPY pyproject.toml uv.lock ./
 
 # Install full ML stack + GPU deps
-RUN uv sync --frozen --no-dev --extra ml-worker --extra gpu --no-install-project && \
-    uv cache clean
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --extra ml-worker --extra gpu --no-install-project
 
 COPY app/ ./app/
 COPY artifacts/ ./artifacts/
+COPY scripts/ ./scripts/
 
 ENV PYTHONPATH=/app
 ENV HF_HOME=/cache/huggingface

@@ -17,7 +17,7 @@ data/ood_test/
 data/corrections/
 data/qdrant_storage/
 data/embeddings/
-
+z_rough
 # Keep the eval contract and folder structure
 !data/eval_pairs.json
 !data/raw/.gitkeep
@@ -39,6 +39,9 @@ Agents.md
 *.pt
 *.onnx
 *.engine
+
+# Claude Code memory
+.claude/
 
 # IDE
 .vscode/
