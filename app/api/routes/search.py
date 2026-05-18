@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException, Request
+import asyncio
+from functools import partial
+
+import numpy as np
+from fastapi import APIRouter, HTTPException, Request, UploadFile
 
 from app.api.models import SearchResponse, SearchResult
 from app.embedding.config import CLIP_BASE
 from app.embedding.registry import registry
 from app.vector_store import qdrant as qdrant_pipeline
+from app.worker.tasks import find_similar_by_image
 
 router = APIRouter()
 
@@ -39,6 +44,7 @@ async def search_images(
 
     results = [
         SearchResult(
+            id=r["id"],
             filename=r["filename"],
             image_path=r["image_path"],
             score=round(r["score"], 4),
@@ -48,3 +54,91 @@ async def search_images(
     ]
 
     return SearchResponse(query=query, results=results, total=len(results))
+
+@router.get("/similar/{asset_id}", response_model=SearchResponse)
+async def similar_images(
+    request: Request, asset_id: int, top_k: int = 10
+) -> SearchResponse:
+    """
+    Return the top-K most visually similar images to a given asset.
+
+    Retrieves the asset's stored CLIP vector from Qdrant and uses it as the
+    search query — no re-embedding needed. The asset itself is excluded from results.
+
+    Args:
+        request (Request): FastAPI request object — used to access app.state.qdrant_client.
+        asset_id (int): Qdrant point ID of the reference asset.
+        top_k (int): Number of similar images to return. Defaults to 10, max 50.
+
+    Returns:
+        SearchResponse: Similar images ordered by cosine similarity score descending.
+
+    Raises:
+        HTTPException: 404 if asset_id does not exist in the collection.
+    """
+    top_k = min(top_k, 50)
+    state = request.app.state
+
+    points = state.qdrant_client.retrieve(
+        collection_name=CLIP_BASE.collection_name,
+        ids=[asset_id],
+        with_vectors=True,
+    )
+    if not points:
+        raise HTTPException(status_code=404, detail=f"Asset {asset_id} not found.")
+
+    query_vector = np.array(points[0].vector, dtype=np.float32)
+    raw_results = qdrant_pipeline.search(
+        state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k + 1
+    )
+
+    results = [
+        SearchResult(
+            id=r["id"],
+            filename=r["filename"],
+            image_path=r["image_path"],
+            score=round(r["score"], 4),
+            timestamp_s=r.get("timestamp_s"),
+        )
+        for r in raw_results
+        if r["id"] != asset_id
+    ][:top_k]
+
+    return SearchResponse(query=f"similar:{asset_id}", results=results, total=len(results))
+
+
+@router.post("/similar/upload", response_model=SearchResponse)
+async def similar_by_upload(file: UploadFile, top_k: int = 10) -> SearchResponse:
+    """
+    Find images similar to an uploaded image using CLIP embedding.
+
+    Dispatches find_similar_by_image to the Celery worker, which embeds the
+    image and searches Qdrant. The uploaded image is never indexed.
+
+    Args:
+        file (UploadFile): Image file to use as the similarity query.
+        top_k (int): Number of similar assets to return. Defaults to 10, max 50.
+
+    Returns:
+        SearchResponse: Top-K similar assets ordered by cosine similarity.
+    """
+    top_k = min(top_k, 50)
+    image_bytes = await file.read()
+    loop = asyncio.get_event_loop()
+    try:
+        task = find_similar_by_image.delay(image_bytes, top_k)
+        raw_results = await loop.run_in_executor(None, partial(task.get, timeout=10))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Similar search failed: {exc}")
+
+    results = [
+        SearchResult(
+            id=r["id"],
+            filename=r["filename"],
+            image_path=r["image_path"],
+            score=round(r["score"], 4),
+            timestamp_s=r.get("timestamp_s"),
+        )
+        for r in raw_results
+    ]
+    return SearchResponse(query="similar:upload", results=results, total=len(results))

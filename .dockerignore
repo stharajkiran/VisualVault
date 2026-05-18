@@ -8,6 +8,7 @@ data/holdout/
 data/embeddings/
 data/ood_test/
 data/corrections/
+z_rough
 
 # Python bytecode
 __pycache__/
@@ -35,3 +36,4 @@ spaces/
 md_files/
 tests/
 scripts/
+!scripts/model/

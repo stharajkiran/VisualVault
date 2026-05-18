@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.vector_store.qdrant import COLLECTION_NAME
 
-OUTPUT_DIR = Path(__file__).parent.parent / "spaces"
+OUTPUT_DIR = Path(__file__).parent.parent / "data" / "embeddings"
 BATCH_SIZE = 256
 
 

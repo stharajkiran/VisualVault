@@ -47,6 +47,9 @@ ml-worker = [
     "ultralytics>=8.3.0",
     "scikit-learn>=1.4.0",
     "ffmpeg-python>=0.2.0",
+    "psycopg2-binary>=2.9.0",
+    "label-studio-sdk>=2.0.22",
+
 ]
 
 # GPU optimization — Worker only, runtime TRT inference

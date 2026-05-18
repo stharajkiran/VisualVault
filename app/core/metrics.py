@@ -1,7 +1,8 @@
+"""Prometheus metric definitions for the API and Celery worker."""
 import os
 
 import redis
-from prometheus_client import Gauge, Histogram
+from prometheus_client import Counter, Gauge, Histogram
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
@@ -28,6 +29,16 @@ PIPELINE_LATENCY = Histogram(
 EMBEDDING_DRIFT = Gauge(
     "visualvault_embedding_drift",
     "Cosine distance between the latest batch mean embedding and the index baseline",
+)
+
+CORRECTIONS_TOTAL = Counter(
+    "visualvault_corrections_total",
+    "Total number of human corrections submitted via Label Studio webhook",
+)
+
+YOLO_MEAN_CONFIDENCE = Gauge(
+    "visualvault_yolo_mean_confidence",
+    "Mean detection confidence of the active YOLO model on holdout images — updated after each retraining run",
 )
 
 

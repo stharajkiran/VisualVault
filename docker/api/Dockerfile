@@ -11,8 +11,8 @@ COPY pyproject.toml uv.lock ./
 
 # Install base deps + text encoder only — API never runs image inference
 # torch resolves to pytorch-cpu index via ml-api conflict declaration in pyproject.toml
-RUN uv sync --frozen --no-dev --extra ml-api --no-install-project && \
-    uv cache clean
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --extra ml-api --no-install-project
 
 # Copy application code
 COPY app/ ./app/

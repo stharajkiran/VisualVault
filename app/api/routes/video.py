@@ -1,3 +1,4 @@
+"""POST /upload/video — validates MIME type and dispatches ingest_video to the Celery worker."""
 from fastapi import APIRouter, HTTPException, UploadFile
 
 from app.worker.celery_app import celery_app

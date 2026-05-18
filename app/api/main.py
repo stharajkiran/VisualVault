@@ -5,7 +5,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.responses import Response
 
-from app.api.routes import drift, jobs, search, upload, video
+from app.api.routes import corrections, drift, governance, jobs, live, search, upload, video
 from app.core.drift import compute_baseline
 from app.core.metrics import update_queue_depth
 from app.embedding.config import CLIP_BASE
@@ -33,7 +33,11 @@ async def lifespan(app: FastAPI):
     qdrant_pipeline.create_collection(app.state.qdrant_client, CLIP_BASE)
 
     print("[Startup] Computing embedding baseline ...")
-    app.state.baseline = compute_baseline(app.state.qdrant_client, CLIP_BASE)
+    try:
+        app.state.baseline = compute_baseline(app.state.qdrant_client, CLIP_BASE)
+    except Exception as exc:
+        print(f"[Startup] Warning: baseline computation failed ({exc}) — drift detection disabled")
+        app.state.baseline = None
 
     print("[Startup] Ready.")
     yield
@@ -54,6 +58,9 @@ app.include_router(search.router)
 app.include_router(jobs.router)
 app.include_router(video.router)
 app.include_router(drift.router)
+app.include_router(corrections.router)
+app.include_router(governance.router)
+app.include_router(live.router)
 
 Instrumentator().instrument(app)
 
