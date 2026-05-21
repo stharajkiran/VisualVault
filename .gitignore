@@ -11,12 +11,14 @@ build/
 
 # Data — images are too large for git, tracked by DVC in Block 3C
 data/raw/
+scripts/data/raw/
 data/index/
 data/holdout/
 data/ood_test/
 data/corrections/
 data/qdrant_storage/
 data/embeddings/
+data/
 z_rough
 # Keep the eval contract and folder structure
 !data/eval_pairs.json
@@ -57,6 +59,6 @@ logs/
 
 # MLflow (Phase 3)
 mlruns/
-
+asset/img.jpg
 
 

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -8,6 +9,7 @@ from transformers import CLIPModel, CLIPProcessor
 from app.embedding.config import CLIPConfig
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+logger = logging.getLogger(__name__)
 
 
 class EmbeddingProvider(ABC):
@@ -88,11 +90,11 @@ class CLIPPyTorchProvider(EmbeddingProvider):
             None
         """
         self._config = config
-        print(f"[{config.alias}] Loading {config.model_id} on {DEVICE} ...")
+        logger.info("Loading %s on %s ...", config.model_id, DEVICE)
         self._model: CLIPModel = CLIPModel.from_pretrained(config.model_id).to(DEVICE)
         self._model.eval()
         self._processor: CLIPProcessor = CLIPProcessor.from_pretrained(config.model_id)
-        print(f"[{config.alias}] Ready.")
+        logger.info("%s ready.", config.alias)
 
     @property
     def config(self) -> CLIPConfig:
@@ -165,9 +167,9 @@ class CLIPTensorRTProvider(EmbeddingProvider):
         self._config = config
         self._processor: CLIPProcessor = CLIPProcessor.from_pretrained(config.model_id)
 
-        print(f"[{config.alias}] Loading TRT engine from {config.engine_path} ...")
-        logger = trt.Logger(trt.Logger.WARNING)
-        runtime = trt.Runtime(logger)
+        logger.info("Loading TRT engine from %s ...", config.engine_path)
+        trt_logger = trt.Logger(trt.Logger.WARNING)
+        runtime = trt.Runtime(trt_logger)
         with open(config.engine_path, "rb") as f:
             self._engine = runtime.deserialize_cuda_engine(f.read())
         if self._engine is None:
@@ -175,10 +177,10 @@ class CLIPTensorRTProvider(EmbeddingProvider):
         self._context = self._engine.create_execution_context()
 
         # PyTorch text encoder — loaded once, used for embed_text()
-        print(f"[{config.alias}] Loading PyTorch text encoder for embed_text() ...")
+        logger.info("Loading PyTorch text encoder for embed_text() ...")
         self._text_model: CLIPModel = CLIPModel.from_pretrained(config.model_id).to(DEVICE)
         self._text_model.eval()
-        print(f"[{config.alias}] Ready.")
+        logger.info("%s ready.", config.alias)
 
     @property
     def config(self) -> CLIPConfig:

@@ -113,57 +113,50 @@ def test_push_to_label_studio_no_ops_without_config():
 
 
 def test_push_to_label_studio_returns_true_on_success():
-    """Returns True when Label Studio responds with 201."""
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-
+    """Returns True when the Label Studio SDK call succeeds."""
     with patch("app.core.label_studio.LABEL_STUDIO_URL", "http://localhost:8080"):
         with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", "test-token"):
-            with patch("app.core.label_studio.httpx.post", return_value=mock_response):
+            with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
+                mock_ls_cls.return_value.projects.import_tasks.return_value = None
                 from app.core.label_studio import push_to_label_studio
                 result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     assert result is True
 
 
-def test_push_to_label_studio_retries_with_bearer_after_401():
-    """Retries with Bearer auth when Label Studio rejects Token auth."""
-    unauthorized = MagicMock(status_code=401, text="unauthorized")
-    created = MagicMock(status_code=201)
-
+def test_push_to_label_studio_passes_credentials_to_sdk():
+    """SDK is initialized with the configured URL and API key."""
     with patch("app.core.label_studio.LABEL_STUDIO_URL", "http://localhost:8080"):
         with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", "test-token"):
-            with patch("app.core.label_studio.LABEL_STUDIO_AUTH_SCHEME", "Token"):
-                with patch(
-                    "app.core.label_studio.httpx.post",
-                    side_effect=[unauthorized, created],
-                ) as mock_post:
+            with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
+                mock_ls_cls.return_value.projects.import_tasks.return_value = None
+                from app.core.label_studio import push_to_label_studio
+                push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
+    mock_ls_cls.assert_called_once_with(base_url="http://localhost:8080", api_key="test-token")
+
+
+def test_push_to_label_studio_sends_task_payload():
+    """import_tasks is called with the correct project ID and task structure."""
+    with patch("app.core.label_studio.LABEL_STUDIO_URL", "http://localhost:8080"):
+        with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", "test-token"):
+            with patch("app.core.label_studio.LABEL_STUDIO_PROJECT_ID", 42):
+                with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
+                    mock_import = mock_ls_cls.return_value.projects.import_tasks
+                    mock_import.return_value = None
                     from app.core.label_studio import push_to_label_studio
-                    result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
-
-    assert result is True
-    assert mock_post.call_args_list[0].kwargs["headers"]["Authorization"] == "Token test-token"
-    assert mock_post.call_args_list[1].kwargs["headers"]["Authorization"] == "Bearer test-token"
-
-
-def test_push_to_label_studio_strips_quoted_env_token():
-    """Avoids sending accidental quotes from .env values in the auth header."""
-    mock_response = MagicMock(status_code=201)
-
-    with patch("app.core.label_studio.LABEL_STUDIO_URL", "http://localhost:8080"):
-        with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", "'test-token'"):
-            with patch("app.core.label_studio.httpx.post", return_value=mock_response) as mock_post:
-                from app.core.label_studio import push_to_label_studio
-                result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
-
-    assert result is True
-    assert mock_post.call_args.kwargs["headers"]["Authorization"] == "Token test-token"
+                    push_to_label_studio("img.jpg", b"bytes", [("dog", 0.4)])
+    call_kwargs = mock_import.call_args
+    assert call_kwargs.kwargs["id"] == 42
+    task = call_kwargs.kwargs["request"][0]
+    assert task["data"]["filename"] == "img.jpg"
+    assert task["predictions"][0]["result"][0]["value"]["rectanglelabels"] == ["dog"]
 
 
 def test_push_to_label_studio_returns_false_on_exception():
-    """Returns False without raising when httpx raises an exception."""
+    """Returns False without raising when the SDK raises an exception."""
     with patch("app.core.label_studio.LABEL_STUDIO_URL", "http://localhost:8080"):
         with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", "test-token"):
-            with patch("app.core.label_studio.httpx.post", side_effect=Exception("timeout")):
+            with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
+                mock_ls_cls.return_value.projects.import_tasks.side_effect = Exception("timeout")
                 from app.core.label_studio import push_to_label_studio
                 result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     assert result is False

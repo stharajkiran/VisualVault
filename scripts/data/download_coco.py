@@ -7,7 +7,7 @@ import zipfile
 from pathlib import Path
 import urllib.request
 
-DATA_RAW = Path(__file__).parent.parent / "data" / "raw"
+DATA_RAW = Path(__file__).parent.parent.parent / "data" / "raw"
 IMAGES_URL = "http://images.cocodataset.org/zips/val2017.zip"
 ANNOTATIONS_URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
 

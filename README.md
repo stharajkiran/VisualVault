@@ -14,7 +14,19 @@ VisualVault is a production-grade digital asset management platform. Upload imag
 
 ---
 
+## Screenshots
+
+![Search results](assets/search.png)
+*Natural language search — returns ranked results from 4,000 indexed images*
+
+![Upload and ingestion](assets/upload_caption.png)
+*Upload flow — YOLO object tags, BLIP-2 caption, and confidence scores returned per image*
+
+---
+
 ## Measured results
+
+*All metrics measured on held-out data — none of these numbers come from the training set.*
 
 | Metric | Value | Notes |
 |---|---|---|
@@ -106,38 +118,35 @@ flowchart TD
 
 ---
 
-## Quick start (local development)
+## Quick start
 
-Infrastructure runs in Docker. Python services run locally.
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/), [Docker](https://docs.docker.com/get-docker/), and [Task](https://taskfile.dev/installation/).
 
 ```bash
 git clone https://github.com/stharajkiran/VisualVault
 cd visualvault
-cp .env.example .env
-
-# Start infrastructure
-docker compose up -d qdrant redis postgres
-
-# Index 4,000 COCO images
-uv run python scripts/data/index_images.py
-
-# Start API
-uv run uvicorn app.api.main:app --reload
-
-# Start worker (new terminal)
-uv run celery -A app.worker.celery_app.celery_app worker --loglevel=info --pool=solo
-
-# Start UI (new terminal)
-uv run streamlit run app/ui/app.py
+cp .env.example .env   # fill in credentials
+task up                # bootstrap data + build + start all services
 ```
+
+Streamlit UI → `http://127.0.0.1:8501`
+
+**Individual commands** (local development without Docker):
+```bash
+task bootstrap   # one-time setup: install deps, download data, index images
+task api         # terminal 1 — FastAPI on :8000
+task worker      # terminal 2 — Celery worker
+task ui          # terminal 3 — Streamlit on :8501
+```
+
+Run `task --list` to see all available commands.
 
 ---
 
-## Phases
+## Model choices
 
-| Phase | Status | Key deliverables |
-|---|---|---|
-| 1 — Semantic Search Engine | ✅ | CLIP + Qdrant search, 0.94 Recall@10, HF Spaces demo |
-| 2 — Production Pipeline | ✅ | Celery async, TensorRT 3.8×, Prometheus + Grafana, GitHub Actions CI |
-| 3 — Self-Healing System | ✅ | Drift detection, Label Studio active learning, automated YOLO retraining |
-| 4 — Enterprise Platform | 🔄 | Governance, real-time ingest, find similar, impact metrics |
+**CLIP ViT-B/32** handles semantic search because it maps both images and text into the same 512-dimensional space — a query like *"golden hour landscape"* retrieves matching images even if they have no metadata or filename. ViT-B/32 specifically balances speed and accuracy well for a retrieval task: the larger L/14 variant adds ~30% latency with marginal recall improvement at this index size.
+
+**YOLO11n** (nano) runs object detection at ingestion time. The nano variant was chosen deliberately — it keeps the async pipeline from bottlenecking on detection while the image waits for CLIP embedding and BLIP captioning. Precision and recall (86%/78%) are good enough for object-tag search; a larger model would cost 4× the latency for marginal gains on a retrieval use case.
+
+**BLIP-2 OPT-2.7B** generates natural language captions that make images searchable by description without manual tagging. BLIP-2 was chosen over lighter captioning models because its vision-language alignment produces captions specific enough to be useful (e.g., *"a black dog catching a frisbee in a park"* vs *"a dog outdoors"*).

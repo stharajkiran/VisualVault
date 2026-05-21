@@ -1,4 +1,6 @@
+import logging
 import os
+
 import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
@@ -8,6 +10,7 @@ from app.embedding.config import CLIPConfig
 
 HOST = os.getenv("QDRANT_HOST", "localhost")
 PORT = int(os.getenv("QDRANT_PORT", "6333"))
+logger = logging.getLogger(__name__)
 
 
 def get_client() -> QdrantClient:
@@ -30,14 +33,14 @@ def create_collection(client: QdrantClient, config:CLIPConfig) -> None:
     """
     existing = [c.name for c in client.get_collections().collections]
     if config.collection_name in existing:
-        print(f"[Qdrant] Collection '{config.collection_name}' already exists, skipping creation.")
+        logger.info("Collection '%s' already exists, skipping creation.", config.collection_name)
         return
 
     client.create_collection(
         collection_name=config.collection_name,
         vectors_config=VectorParams(size=config.embedding_dim, distance=Distance.COSINE),
     )
-    print(f"[Qdrant] Created collection '{config.collection_name}' ({config.embedding_dim}-dim, cosine).")
+    logger.info("Created collection '%s' (%d-dim, cosine).", config.collection_name, config.embedding_dim)
 
 
 def upsert(client: QdrantClient, config: CLIPConfig, image_id: int, embedding: np.ndarray, payload: dict) -> None:

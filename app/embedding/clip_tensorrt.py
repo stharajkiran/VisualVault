@@ -1,9 +1,13 @@
+import logging
+
 import numpy as np
 import tensorrt as trt
 import torch
 from pathlib import Path
 from PIL import Image
 from transformers import CLIPProcessor
+
+logger = logging.getLogger(__name__)
 
 ENGINE_PATH = Path("artifacts/tensorrt/clip_image_encoder.engine")
 PROCESSOR_NAME = "openai/clip-vit-base-patch32"
@@ -25,10 +29,10 @@ def load_engine() -> tuple[trt.ICudaEngine, trt.IExecutionContext, CLIPProcessor
         tuple: (engine, context, processor) where engine is the TRT ICudaEngine,
                context is the IExecutionContext, and processor is the CLIPProcessor.
     """
-    logger = trt.Logger(trt.Logger.WARNING)
-    runtime = trt.Runtime(logger)
+    trt_logger = trt.Logger(trt.Logger.WARNING)
+    runtime = trt.Runtime(trt_logger)
 
-    print(f"[CLIP-TRT] Loading engine from {ENGINE_PATH} ...")
+    logger.info("Loading TRT engine from %s ...", ENGINE_PATH)
     with open(ENGINE_PATH, "rb") as f:
         engine = runtime.deserialize_cuda_engine(f.read())
 
@@ -37,7 +41,7 @@ def load_engine() -> tuple[trt.ICudaEngine, trt.IExecutionContext, CLIPProcessor
 
     context = engine.create_execution_context()
     processor = CLIPProcessor.from_pretrained(PROCESSOR_NAME)
-    print("[CLIP-TRT] Engine loaded.")
+    logger.info("TRT engine loaded.")
     return engine, context, processor
 
 

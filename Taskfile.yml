@@ -1,0 +1,239 @@
+version: '3'
+
+vars:
+  QDRANT_URL: http://127.0.0.1:6333
+  COLLECTION: visualvault
+
+tasks:
+
+  # ── Default ──────────────────────────────────────────────────────────────────
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  # ── Prerequisites ─────────────────────────────────────────────────────────────
+  check:
+    desc: Verify prerequisites (uv, docker, docker daemon)
+    run: once
+    cmds:
+      - echo "Checking prerequisites..."
+      - uv --version
+      - docker --version
+      - docker info --format "Docker daemon is running"
+      - echo "All prerequisites met."
+
+  # ── Install dependencies ──────────────────────────────────────────────────────
+  install:
+    desc: Install Python dependencies via uv sync
+    deps: [check]
+    cmds:
+      - echo "Syncing Python dependencies..."
+      - uv sync --extra ml-worker --extra gpu --extra dev --extra ui --extra db
+      - echo "Dependencies ready."
+
+  # ── Environment setup ─────────────────────────────────────────────────────────
+  setup:
+    desc: Create .env and data directories
+    deps: [check]
+    cmds:
+      - cmd: |
+          uv run python -c "
+          import pathlib, shutil
+          if not pathlib.Path('.env').exists():
+              shutil.copy('.env.example', '.env')
+              print('.env created from .env.example — fill in your credentials before continuing.')
+          else:
+              print('  .env already exists, skipping.')
+          for d in ['data/raw','data/index','data/holdout','data/uploads','data/corrections/images','data/ood_test']:
+              pathlib.Path(d).mkdir(parents=True, exist_ok=True)
+          print('Setup complete.')
+          "
+
+  # ── Infrastructure ────────────────────────────────────────────────────────────
+  infra-up:
+    desc: Start core services (Qdrant, Redis, Postgres)
+    run: once
+    preconditions:
+      - sh: uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('.env').exists() else 1)"
+        msg: ".env not found. Run 'task setup' first."
+    cmds:
+      - echo "Starting core infrastructure..."
+      - docker compose up -d qdrant redis postgres
+      - uv run python -c "import time; time.sleep(3)"
+      - echo "Core infrastructure up."
+
+  infra-full:
+    desc: Start all services including monitoring and MLOps
+    preconditions:
+      - sh: uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('.env').exists() else 1)"
+        msg: ".env not found. Run 'task setup' first."
+    cmds:
+      - echo "Starting all services..."
+      - docker compose up -d
+      - echo "All services up."
+
+  infra-down:
+    desc: Stop all containers
+    cmds:
+      - echo "Stopping all containers..."
+      - docker compose down
+      - echo "Done."
+
+  # ── Data ──────────────────────────────────────────────────────────────────────
+  download:
+    desc: Download COCO val2017 images — skips if already present
+    preconditions:
+      - sh: uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('.env').exists() else 1)"
+        msg: ".env not found. Run 'task setup' first."
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/raw').rglob('*.jpg')) >= 5000 else 1)"
+    cmds:
+      - echo "Downloading COCO val2017 images (~1GB)..."
+      - uv run python scripts/data/download_coco.py
+
+  split:
+    desc: Split data into index/holdout sets — skips if already split
+    deps: [download]
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/index').glob('*.jpg')) >= 4000 else 1)"
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/holdout').glob('*.jpg')) >= 1000 else 1)"
+    cmds:
+      - echo "Splitting data into index/holdout sets..."
+      - uv run python scripts/data/split_data.py
+
+  index:
+    desc: Embed and upsert 4k images into Qdrant — skips if already indexed
+    deps: [split, infra-up]
+    status:
+      - uv run python -c "import urllib.request,json,sys; r=json.loads(urllib.request.urlopen('{{.QDRANT_URL}}/collections/{{.COLLECTION}}').read()); sys.exit(0 if r.get('result',{}).get('points_count',0)>=4000 else 1)"
+    cmds:
+      - echo "Indexing 4,000 images into Qdrant..."
+      - uv run python scripts/data/index_images.py
+      - echo "Indexing complete."
+
+  # ── Model weights ────────────────────────────────────────────────────────────
+  check-weights:
+    desc: Download YOLO11n weights if not present in artifacts/models/
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('artifacts/models/yolo11n.pt').exists() else 1)"
+    cmds:
+      - echo "Downloading YOLO11n weights..."
+      - uv run python -c "from ultralytics import YOLO; import pathlib, shutil; dest=pathlib.Path('artifacts/models/yolo11n.pt'); dest.parent.mkdir(parents=True, exist_ok=True); YOLO('yolo11n.pt'); src=pathlib.Path('yolo11n.pt'); shutil.move(str(src), str(dest)) if src.exists() else None; print('YOLO11n weights ready at', dest)"
+
+  # ── Services ──────────────────────────────────────────────────────────────────
+  api:
+    desc: Start FastAPI on http://127.0.0.1:8000
+    deps: [infra-up]
+    cmds:
+      - echo "Starting FastAPI on http://127.0.0.1:8000"
+      - uv run uvicorn app.api.main:app --reload
+
+  worker:
+    desc: Start Celery worker (run in a separate terminal)
+    deps: [infra-up]
+    cmds:
+      - echo "Starting Celery worker..."
+      - uv run celery -A app.worker.celery_app.celery_app worker --loglevel=info --pool=solo
+
+  ui:
+    desc: Start Streamlit UI on http://127.0.0.1:8501
+    cmds:
+      - echo "Starting Streamlit UI on http://127.0.0.1:8501"
+      - uv run streamlit run app/ui/app.py
+
+  # ── Evaluation and testing ────────────────────────────────────────────────────
+  test:
+    desc: Run test suite
+    cmds:
+      - uv run pytest --tb=short
+
+  eval:
+    desc: Run Recall@10 evaluation
+    deps: [infra-up]
+    cmds:
+      - echo "Running Recall@10 evaluation..."
+      - uv run python scripts/eval/eval_recall.py
+
+  drift:
+    desc: Run OOD drift detection
+    deps: [infra-up]
+    cmds:
+      - echo "Running OOD drift detection..."
+      - uv run python scripts/eval/detect_drift.py
+
+  # ── Bootstrap ────────────────────────────────────────────────────────────────
+  bootstrap:
+    desc: Full setup from a fresh clone — install, infra, data, weights, index
+    deps: [install, setup, infra-up, check-weights, index]
+    cmds:
+      - echo ""
+      - echo "Bootstrap complete. Start services in three separate terminals:"
+      - echo "  task api"
+      - echo "  task worker"
+      - echo "  task ui"
+
+  # ── Run everything ───────────────────────────────────────────────────────────
+  dev:
+    desc: Local development — bootstrap then open API and worker in new terminals, UI in current (Windows only)
+    deps: [bootstrap]
+    cmds:
+      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task api"
+      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task worker"
+      - task ui
+
+  # ── Run everything ───────────────────────────────────────────────────────────
+  up:
+    desc: Full end-to-end — bootstrap data then build and start all services in Docker
+    deps: [bootstrap]
+    cmds:
+      - echo "Building and starting all services..."
+      - docker compose up --build
+
+  down:
+    desc: Stop and remove all containers
+    cmds:
+      - docker compose down
+
+  # ── Phase shortcuts ───────────────────────────────────────────────────────────
+  phase1:
+    desc: "Phase 1 — Core search engine: infra + data + index"
+    deps: [setup, infra-up, index]
+    cmds:
+      - echo ""
+      - echo "Phase 1 ready."
+      - echo "  Start services in separate terminals:"
+      - echo "    task api"
+      - echo "    task worker"
+      - echo "    task ui"
+
+  phase2:
+    desc: "Phase 2 — Phase 1 + Prometheus + Grafana monitoring"
+    deps: [setup, infra-full, index]
+    cmds:
+      - echo ""
+      - echo "Phase 2 ready - monitoring stack included."
+      - 'echo "  Grafana:    http://127.0.0.1:3000  (admin / see .env)"'
+      - 'echo "  Prometheus: http://127.0.0.1:9090"'
+      - echo "  Start services in separate terminals:"
+      - echo "    task api"
+      - echo "    task worker"
+      - echo "    task ui"
+
+  phase3:
+    desc: "Phase 3 — Phase 2 + Label Studio active learning"
+    deps: [setup, infra-full, index]
+    cmds:
+      - echo ""
+      - echo "Phase 3 ready - Label Studio active learning included."
+      - 'echo "  Label Studio: http://127.0.0.1:8090"'
+      - 'echo "  Grafana:      http://127.0.0.1:3000"'
+      - echo "  Start services in separate terminals:"
+      - echo "    task api"
+      - echo "    task worker"
+      - echo "    task ui"
+
+  all:
+    desc: Full end-to-end setup (same as phase1)
+    deps: [phase1]

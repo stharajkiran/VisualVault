@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -13,6 +14,14 @@ from app.embedding.provider import CLIPPyTorchProvider
 from app.embedding.registry import registry
 from app.vector_store import qdrant as qdrant_pipeline
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s — %(message)s")
+logging.getLogger("transformers").setLevel(logging.WARNING)
+logging.getLogger("ultralytics").setLevel(logging.WARNING)
+logging.getLogger("torch").setLevel(logging.WARNING)
+logging.getLogger("PIL").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,27 +32,27 @@ async def lifespan(app: FastAPI):
     YOLO, BLIP-2, and the CLIP image encoder belong exclusively in the
     Celery worker where all image inference happens.
     """
-    print("[Startup] Registering embedding provider ...")
+    logger.info("Registering embedding provider ...")
     provider = CLIPPyTorchProvider(CLIP_BASE)
-    provider.warmup()
+    provider.embed_text("warmup")  # warm text encoder — API never calls embed_image
     registry.register(provider)
 
-    print("[Startup] Connecting to Qdrant ...")
+    logger.info("Connecting to Qdrant ...")
     app.state.qdrant_client = qdrant_pipeline.get_client()
     qdrant_pipeline.create_collection(app.state.qdrant_client, CLIP_BASE)
 
-    print("[Startup] Computing embedding baseline ...")
+    logger.info("Computing embedding baseline ...")
     try:
         app.state.baseline = compute_baseline(app.state.qdrant_client, CLIP_BASE)
     except Exception as exc:
-        print(f"[Startup] Warning: baseline computation failed ({exc}) — drift detection disabled")
+        logger.warning("Baseline computation failed (%s) — drift detection disabled", exc)
         app.state.baseline = None
 
-    print("[Startup] Ready.")
+    logger.info("Ready.")
     yield
 
     app.state.qdrant_client.close()
-    print("[Shutdown] Done.")
+    logger.info("Shutdown complete.")
 
 
 app = FastAPI(

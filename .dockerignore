@@ -8,6 +8,7 @@ data/holdout/
 data/embeddings/
 data/ood_test/
 data/corrections/
+data/qdrant_storage/
 z_rough
 
 # Python bytecode

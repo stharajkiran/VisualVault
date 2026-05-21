@@ -112,8 +112,10 @@ async def similar_by_upload(file: UploadFile, top_k: int = 10) -> SearchResponse
     """
     Find images similar to an uploaded image using CLIP embedding.
 
-    Dispatches find_similar_by_image to the Celery worker, which embeds the
-    image and searches Qdrant. The uploaded image is never indexed.
+    Dispatches find_similar_by_image to the Celery worker and blocks until the
+    result is ready (timeout 10s). Blocking is intentional — the caller is waiting
+    for results and a job-ID-and-poll pattern would add round trips with no benefit.
+    The uploaded image is never indexed.
 
     Args:
         file (UploadFile): Image file to use as the similarity query.

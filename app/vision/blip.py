@@ -1,4 +1,6 @@
+import logging
 import time
+
 import torch
 from PIL import Image
 from transformers import Blip2ForConditionalGeneration, Blip2Processor
@@ -6,6 +8,7 @@ from transformers import Blip2ForConditionalGeneration, Blip2Processor
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_NAME = "Salesforce/blip2-opt-2.7b"
 MAX_NEW_TOKENS = 50
+logger = logging.getLogger(__name__)
 
 
 def load_model() -> tuple[Blip2ForConditionalGeneration, Blip2Processor]:
@@ -22,7 +25,7 @@ def load_model() -> tuple[Blip2ForConditionalGeneration, Blip2Processor]:
     Returns:
         Tuple of (model, processor) ready for inference.
     """
-    print(f"[BLIP-2] Loading {MODEL_NAME} on {DEVICE} ...")
+    logger.info("Loading %s on %s ...", MODEL_NAME, DEVICE)
     t0 = time.perf_counter()
     processor = Blip2Processor.from_pretrained(MODEL_NAME)
     model = Blip2ForConditionalGeneration.from_pretrained(
@@ -31,7 +34,7 @@ def load_model() -> tuple[Blip2ForConditionalGeneration, Blip2Processor]:
     ).to(DEVICE)
     model.eval()
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[BLIP-2] Loaded in {elapsed:.0f}ms")
+    logger.info("BLIP-2 loaded in %.0fms", elapsed)
     return model, processor
 
 
@@ -58,11 +61,12 @@ def caption(image: Image.Image, model: Blip2ForConditionalGeneration, processor:
         output_ids = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)
     caption_text = processor.decode(output_ids[0], skip_special_tokens=True).strip()
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[BLIP-2] caption: {elapsed:.1f}ms | '{caption_text}'")
+    logger.debug("BLIP-2 caption: %.1fms | '%s'", elapsed, caption_text)
     return caption_text
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     model, processor = load_model()
     img = Image.open("assets/img.jpg").convert("RGB")
     print(caption(img, model, processor))

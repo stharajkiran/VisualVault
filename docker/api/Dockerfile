@@ -9,10 +9,10 @@ RUN pip install uv --no-cache-dir
 # If only app code changes, this layer is reused and deps are not reinstalled.
 COPY pyproject.toml uv.lock ./
 
-# Install base deps + text encoder only — API never runs image inference
+# Install base deps + text encoder + psycopg2 for governance DB calls
 # torch resolves to pytorch-cpu index via ml-api conflict declaration in pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --extra ml-api --no-install-project
+    uv sync --frozen --no-dev --extra ml-api --extra db --no-install-project
 
 # Copy application code
 COPY app/ ./app/

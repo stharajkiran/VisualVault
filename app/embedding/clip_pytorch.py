@@ -1,4 +1,6 @@
+import logging
 import time
+
 import numpy as np
 import torch
 from PIL import Image
@@ -6,17 +8,18 @@ from transformers import CLIPModel, CLIPProcessor
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_NAME = "openai/clip-vit-base-patch32"
+logger = logging.getLogger(__name__)
 
 
 def load_model() -> tuple[CLIPModel, CLIPProcessor]:
 
-    print(f"[CLIP] Loading {MODEL_NAME} on {DEVICE} ...")
+    logger.info("Loading %s on %s ...", MODEL_NAME, DEVICE)
     t0 = time.perf_counter()
     model = CLIPModel.from_pretrained(MODEL_NAME).to(DEVICE)
     processor = CLIPProcessor.from_pretrained(MODEL_NAME)
     model.eval()
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[CLIP] Loaded in {elapsed:.0f}ms")
+    logger.info("CLIP loaded in %.0fms", elapsed)
     return model, processor
 
 
@@ -70,13 +73,12 @@ def embed_text(query: str, model: CLIPModel, processor: CLIPProcessor) -> np.nda
     vec = features.pooler_output.squeeze().cpu().numpy().astype(np.float32)
     vec = vec / np.linalg.norm(vec)
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[CLIP] embed_text: {elapsed:.1f}ms, shape={vec.shape}, norm={np.linalg.norm(vec):.4f}")
+    logger.debug("CLIP embed_text: %.1fms, shape=%s", elapsed, vec.shape)
     return vec
 
 
 if __name__ == "__main__":
-    from PIL import Image
-    from app.embedding.clip_pytorch import load_model, embed_image, embed_text
+    logging.basicConfig(level=logging.DEBUG)
     model, processor = load_model()
     img = Image.new('RGB', (224, 224), color=(128, 128, 128))
     img_vec = embed_image(img, model, processor)

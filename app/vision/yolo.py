@@ -1,4 +1,6 @@
+import logging
 import time
+
 import torch
 from PIL import Image
 from ultralytics import YOLO
@@ -6,6 +8,7 @@ from ultralytics import YOLO
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_NAME = "artifacts/models/yolo11n.pt"
 CONFIDENCE_THRESHOLD = 0.25
+logger = logging.getLogger(__name__)
 
 
 def load_model() -> YOLO:
@@ -20,12 +23,12 @@ def load_model() -> YOLO:
     Returns:
         YOLO model instance ready for inference.
     """
-    print(f"[YOLO] Loading {MODEL_NAME} on {DEVICE} ...")
+    logger.info("Loading %s on %s ...", MODEL_NAME, DEVICE)
     t0 = time.perf_counter()
     model = YOLO(MODEL_NAME)
     model.to(DEVICE)
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[YOLO] Loaded in {elapsed:.0f}ms")
+    logger.info("YOLO loaded in %.0fms", elapsed)
     return model
 
 
@@ -63,17 +66,13 @@ def detect(image: Image.Image, model: YOLO) -> list[tuple[str, float]]:
 
     tags = sorted(seen.items(), key=lambda x: x[1], reverse=True)
     elapsed = (time.perf_counter() - t0) * 1000
-    print(f"[YOLO] detect: {elapsed:.1f}ms, tags={[t[0] for t in tags]}")
+    logger.debug("YOLO detect: %.1fms, tags=%s", elapsed, [t[0] for t in tags])
     return tags
 
 
-
 if __name__ == "__main__":
-    from PIL import Image
-    from app.vision.yolo import load_model, detect
+    logging.basicConfig(level=logging.DEBUG)
     model = load_model()
-    # img = Image.new('RGB', (640, 640), color=(200, 200, 200))
-    # load image from assets
     img = Image.open("assets/img.jpg").convert("RGB")
     tags = detect(img, model)
-    print('tags:', tags)
+    print("tags:", tags)

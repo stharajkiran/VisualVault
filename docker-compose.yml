@@ -39,7 +39,7 @@ services:
       - .env
 
   label-studio:
-    image: heartexlabs/label-studio:latest
+    image: heartexlabs/label-studio:1.14.0
     ports:
       - "8090:8080"
     environment:
@@ -80,8 +80,6 @@ services:
         condition: service_started
       qdrant:
         condition: service_started
-      label-studio:
-        condition: service_started
     env_file:
       - .env
     deploy:
@@ -104,6 +102,7 @@ services:
     environment:
       - API_BASE=http://api:8000
       - DATA_INDEX_DIR=/app/data/index
+      - DATA_UPLOADS_DIR=/app/data/uploads
     volumes:
       - ./data:/app/data
     depends_on:

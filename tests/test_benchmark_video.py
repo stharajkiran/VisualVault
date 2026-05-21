@@ -5,11 +5,17 @@ These are integration tests: they invoke real FFmpeg. They use a 4-second
 synthetic video so each test completes in well under a second.
 """
 
+import shutil
 from pathlib import Path
 
 import pytest
 
 from scripts.eval.benchmark_video import extract_frames, generate_test_video
+
+pytestmark = pytest.mark.skipif(
+    shutil.which("ffmpeg") is None,
+    reason="FFmpeg not on PATH — skipping video integration tests",
+)
 
 
 @pytest.fixture(scope="module")

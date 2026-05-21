@@ -22,6 +22,16 @@ from pathlib import Path
 # Locally: API_BASE defaults to localhost. In Docker: set to http://api:8000.
 API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8000")
 DATA_INDEX_DIR = Path(os.getenv("DATA_INDEX_DIR", str(Path(__file__).parent.parent.parent / "data" / "index")))
+DATA_UPLOADS_DIR = Path(os.getenv("DATA_UPLOADS_DIR", str(Path(__file__).parent.parent.parent / "data" / "uploads")))
+
+
+def _resolve_image_path(filename: str) -> Path | None:
+    """Return the first existing path for filename across known image directories."""
+    for base in (DATA_INDEX_DIR, DATA_UPLOADS_DIR):
+        p = base / filename
+        if p.exists():
+            return p
+    return None
 
 st.set_page_config(page_title="VisualVault", layout="wide")
 st.title("VisualVault")
@@ -31,32 +41,74 @@ page = st.sidebar.radio("Navigate", ["Upload", "Search", "Governance", "Live"])
 
 # ── Upload page ────────────────────────────────────────────────────────────────
 if page == "Upload":
-    st.header("Upload an Image")
-    st.write("Upload an image to automatically generate tags and a caption.")
+    st.header("Upload")
+    img_tab, vid_tab = st.tabs(["Image", "Video"])
 
-    uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png", "webp"])
+    with img_tab:
+        st.write("Upload an image to automatically generate tags and a caption.")
+        uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png", "webp"])
 
-    if uploaded_file is not None:
-        col1, col2 = st.columns(2)
+        if uploaded_file is not None:
+            col1, col2 = st.columns(2)
 
-        with col1:
-            st.image(uploaded_file, caption="Uploaded image", use_container_width=True)
+            with col1:
+                st.image(uploaded_file, caption="Uploaded image", use_container_width=True)
 
-        with col2:
-            with st.spinner("Uploading and processing..."):
+            with col2:
+                with st.spinner("Uploading and processing..."):
+                    try:
+                        response = httpx.post(
+                            f"{API_BASE}/upload",
+                            files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)},
+                            timeout=30,
+                        )
+                        response.raise_for_status()
+                        job_id = response.json()["job_id"]
+
+                        result = None
+                        for _ in range(60):
+                            job = httpx.get(f"{API_BASE}/jobs/{job_id}", timeout=10).json()
+                            if job["status"] == "SUCCESS":
+                                result = job["result"]
+                                break
+                            elif job["status"] == "FAILURE":
+                                st.error(f"Pipeline failed: {job.get('error')}")
+                                result = None
+                                break
+                            time.sleep(1)
+                        else:
+                            st.error("Pipeline timed out after 60 seconds.")
+                            result = None
+
+                        if result:
+                            st.subheader("Results")
+                            st.write(f"**Caption:** {result['caption']}")
+                            st.write("**Tags:**")
+                            for tag in result["tags"]:
+                                st.write(f"- {tag['label']} ({tag['confidence']:.0%} confidence)")
+
+                    except httpx.ConnectError:
+                        st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")
+                    except Exception as e:
+                        st.error(f"Upload failed: {e}")
+
+    with vid_tab:
+        st.write("Upload a video to extract keyframes and index them automatically.")
+        uploaded_video = st.file_uploader("Choose a video", type=["mp4", "mov", "avi", "webm"])
+
+        if uploaded_video is not None:
+            with st.spinner("Uploading video — keyframes will be extracted and indexed..."):
                 try:
-                    # POST /upload returns immediately with a job_id
                     response = httpx.post(
-                        f"{API_BASE}/upload",
-                        files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)},
-                        timeout=30,
+                        f"{API_BASE}/upload/video",
+                        files={"file": (uploaded_video.name, uploaded_video.getvalue(), uploaded_video.type)},
+                        timeout=60,
                     )
                     response.raise_for_status()
                     job_id = response.json()["job_id"]
 
-                    # Poll GET /jobs/{job_id} until pipeline finishes
                     result = None
-                    for _ in range(60):
+                    for _ in range(120):
                         job = httpx.get(f"{API_BASE}/jobs/{job_id}", timeout=10).json()
                         if job["status"] == "SUCCESS":
                             result = job["result"]
@@ -65,22 +117,24 @@ if page == "Upload":
                             st.error(f"Pipeline failed: {job.get('error')}")
                             result = None
                             break
-                        time.sleep(1)
-                    else: # this is for-else on the for loop: runs if we exit the loop without hitting break
-                        st.error("Pipeline timed out after 60 seconds.")
+                        time.sleep(2)
+                    else:
+                        st.error("Pipeline timed out — video may still be processing.")
                         result = None
 
                     if result:
-                        st.subheader("Results")
-                        st.write(f"**Caption:** {result['caption']}")
-                        st.write("**Tags:**")
-                        for tag in result["tags"]:
-                            st.write(f"- {tag['label']} ({tag['confidence']:.0%} confidence)")
+                        st.success(f"Indexed {result['frame_count']} keyframes from {result['video_filename']}")
+                        for frame in result["frames"]:
+                            with st.expander(frame["filename"]):
+                                st.write(f"**Caption:** {frame['caption']}")
+                                st.write("**Tags:** " + ", ".join(
+                                    f"{t['label']} ({t['confidence']:.0%})" for t in frame["tags"]
+                                ))
 
                 except httpx.ConnectError:
                     st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")
                 except Exception as e:
-                    st.error(f"Upload failed: {e}")
+                    st.error(f"Video upload failed: {e}")
 
 # ── Search page ────────────────────────────────────────────────────────────────
 elif page == "Search":
@@ -117,9 +171,9 @@ elif page == "Search":
 
         cols = st.columns(4)
         for i, item in enumerate(result["results"]):
-            image_path = DATA_INDEX_DIR / item["filename"]
+            image_path = _resolve_image_path(item["filename"])
             with cols[i % 4]:
-                if image_path.exists():
+                if image_path:
                     st.image(str(image_path), use_container_width=True)
                 else:
                     st.write(f"[{item['filename']}]")
@@ -143,9 +197,9 @@ elif page == "Search":
             similar = resp.json()
             cols = st.columns(4)
             for i, item in enumerate(similar["results"]):
-                image_path = DATA_INDEX_DIR / item["filename"]
+                image_path = _resolve_image_path(item["filename"])
                 with cols[i % 4]:
-                    if image_path.exists():
+                    if image_path:
                         st.image(str(image_path), use_container_width=True)
                     else:
                         st.write(f"[{item['filename']}]")
@@ -175,9 +229,9 @@ elif page == "Search":
                 st.write(f"**{similar['total']} similar images found**")
                 cols = st.columns(4)
                 for i, item in enumerate(similar["results"]):
-                    image_path = DATA_INDEX_DIR / item["filename"]
+                    image_path = _resolve_image_path(item["filename"])
                     with cols[i % 4]:
-                        if image_path.exists():
+                        if image_path:
                             st.image(str(image_path), use_container_width=True)
                         else:
                             st.write(f"[{item['filename']}]")

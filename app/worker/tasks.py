@@ -1,4 +1,5 @@
 """Celery tasks: ingest_image, ingest_video, preview_frame, check_and_retrain (daily retraining beat)."""
+import hashlib
 import os
 import shutil
 import subprocess
@@ -113,9 +114,13 @@ def ingest_image(
         # integer directly so Qdrant IDs correlate with COCO annotation IDs.
         # Uploaded images get a hash bounded to Qdrant's uint64 range (2**63)
         stem = Path(filename).stem
-        image_id = int(stem) if stem.isdigit() else abs(hash(filename)) % (2**63)
+        image_id = int(stem) if stem.isdigit() else int(hashlib.sha256(filename.encode()).hexdigest(), 16) % (2**63)
 
-        payload: dict = {"filename": filename, "image_path": f"uploads/{filename}"}
+        uploads_dir = Path("data/uploads")
+        uploads_dir.mkdir(parents=True, exist_ok=True)
+        (uploads_dir / filename).write_bytes(image_bytes)
+
+        payload: dict = {"filename": filename, "image_path": f"data/uploads/{filename}"}
         # timestamp_s is only present for video keyframes — None for static images
         if timestamp_s is not None:
             payload["timestamp_s"] = timestamp_s
