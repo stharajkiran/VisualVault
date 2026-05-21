@@ -5,7 +5,6 @@ All tests use synthetic numpy vectors. No Qdrant connection, no CLIP model,
 no real images required.
 """
 
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -28,11 +27,14 @@ def test_compute_baseline_shape(tmp_path):
 
 def test_compute_baseline_value(tmp_path):
     """Baseline equals the unweighted mean of all indexed vectors."""
-    vecs = np.array([
-        [1.0, 0.0],
-        [0.0, 1.0],
-        [1.0, 1.0],
-    ], dtype=np.float32)
+    vecs = np.array(
+        [
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
     npy = tmp_path / "embeddings.npy"
     np.save(npy, vecs)
     with patch("app.core.drift._EMBEDDINGS_PATH", npy):

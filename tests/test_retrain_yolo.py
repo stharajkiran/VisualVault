@@ -10,6 +10,7 @@ from scripts.model.retrain_yolo import _collect_pairs, _write_dataset_yaml
 
 # ── _collect_pairs ─────────────────────────────────────────────────────────────
 
+
 def test_collect_pairs_returns_matched_files(tmp_path, monkeypatch):
     """Returns one pair when both .txt and .jpg exist with matching stem."""
     corrections_dir = tmp_path / "corrections"
@@ -69,6 +70,7 @@ def test_collect_pairs_returns_multiple(tmp_path, monkeypatch):
 # _mean_confidence and retrain_yolo() are not tested here — both load real YOLO
 # weights and run GPU inference. Mocking them would test the mock, not the logic.
 # Verified manually by running: uv run python scripts/model/retrain_yolo.py
+
 
 def _make_pairs(tmp_path: Path, n: int) -> list[tuple[Path, Path]]:
     """
@@ -131,6 +133,6 @@ def test_write_dataset_yaml_train_txt_lists_images(tmp_path):
     with tempfile.TemporaryDirectory() as tmpdir:
         yaml_path = _write_dataset_yaml(tmpdir, pairs)
         train_txt = Path(yaml_path.parent / "train.txt")
-        lines = [l for l in train_txt.read_text().splitlines() if l]
+        lines = [line for line in train_txt.read_text().splitlines() if line]
 
     assert len(lines) == 3

@@ -15,14 +15,13 @@ import argparse
 import json
 import sys
 from pathlib import Path
-
+from app.vision import yolo
 from PIL import Image
 from tqdm import tqdm
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.vision import yolo
 
 ANNOTATIONS_FILE = PROJECT_ROOT / "data" / "raw" / "annotations" / "instances_val2017.json"
 HOLDOUT_DIR = PROJECT_ROOT / "data" / "holdout"
@@ -47,9 +46,7 @@ def load_ground_truth(annotations_path: Path) -> dict[str, set[str]]:
         coco = json.load(f)
 
     category_map: dict[int, str] = {c["id"]: c["name"] for c in coco["categories"]}
-    image_id_to_filename: dict[int, str] = {
-        img["id"]: img["file_name"] for img in coco["images"]
-    }
+    image_id_to_filename: dict[int, str] = {img["id"]: img["file_name"] for img in coco["images"]}
 
     gt: dict[str, set[str]] = {}
     for ann in coco["annotations"]:
@@ -78,7 +75,7 @@ def evaluate(limit: int, threshold: float) -> None:
         print(f"No images found in {HOLDOUT_DIR}")
         sys.exit(1)
 
-    print(f"Loading YOLO model ...")
+    print("Loading YOLO model ...")
     model = yolo.load_model()
 
     precisions, recalls = [], []
@@ -110,9 +107,9 @@ def evaluate(limit: int, threshold: float) -> None:
     mean_r = sum(recalls) / len(recalls) if recalls else 0.0
     f1 = 2 * mean_p * mean_r / (mean_p + mean_r) if (mean_p + mean_r) > 0 else 0.0
 
-    print(f"\n{'─' * 50}")
-    print(f"YOLO Holdout Evaluation — class-presence metric")
-    print(f"{'─' * 50}")
+    print("\n" + "─" * 50)
+    print("YOLO Holdout Evaluation — class-presence metric")
+    print("─" * 50)
     print(f"Images evaluated   : {len(holdout_images)}")
     print(f"Images with GT     : {len(holdout_images) - zero_gt}")
     print(f"Images no GT       : {zero_gt} (no COCO annotations)")
@@ -129,10 +126,18 @@ def evaluate(limit: int, threshold: float) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate YOLO on holdout images.")
-    parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT,
-                        help=f"Number of holdout images to evaluate (default: {DEFAULT_LIMIT})")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD,
-                        help=f"YOLO confidence threshold (default: {DEFAULT_THRESHOLD})")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=DEFAULT_LIMIT,
+        help=f"Number of holdout images to evaluate (default: {DEFAULT_LIMIT})",
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=DEFAULT_THRESHOLD,
+        help=f"YOLO confidence threshold (default: {DEFAULT_THRESHOLD})",
+    )
     args = parser.parse_args()
     evaluate(args.limit, args.threshold)
 

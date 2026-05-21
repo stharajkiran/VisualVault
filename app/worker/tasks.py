@@ -1,4 +1,5 @@
 """Celery tasks: ingest_image, ingest_video, preview_frame, check_and_retrain (daily retraining beat)."""
+
 import hashlib
 import os
 import shutil
@@ -58,9 +59,7 @@ def _get_models() -> dict:
 
 
 @celery_app.task
-def ingest_image(
-    filename: str, image_bytes: bytes, timestamp_s: float | None = None
-) -> dict:
+def ingest_image(filename: str, image_bytes: bytes, timestamp_s: float | None = None) -> dict:
     """
     Run the full pipeline on an uploaded image and index it in Qdrant.
 
@@ -106,15 +105,17 @@ def ingest_image(
         # because its output goes directly into Qdrant
         t0 = time.perf_counter()
         embedding = models["clip_provider"].embed_image(image)
-        INFERENCE_LATENCY.labels(model=CLIP_BASE.alias).observe(
-            time.perf_counter() - t0
-        )
+        INFERENCE_LATENCY.labels(model=CLIP_BASE.alias).observe(time.perf_counter() - t0)
 
         # COCO images have numeric filenames (e.g. "000000000009.jpg") — use the
         # integer directly so Qdrant IDs correlate with COCO annotation IDs.
         # Uploaded images get a hash bounded to Qdrant's uint64 range (2**63)
         stem = Path(filename).stem
-        image_id = int(stem) if stem.isdigit() else int(hashlib.sha256(filename.encode()).hexdigest(), 16) % (2**63)
+        image_id = (
+            int(stem)
+            if stem.isdigit()
+            else int(hashlib.sha256(filename.encode()).hexdigest(), 16) % (2**63)
+        )
 
         uploads_dir = Path("data/uploads")
         uploads_dir.mkdir(parents=True, exist_ok=True)
@@ -134,20 +135,22 @@ def ingest_image(
         )
 
         write_governance_record(image_id)
-        append_ai_action(image_id, {
-            "action": "ingest_image",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "tags": [{"label": l, "confidence": round(c, 4)} for l, c in tags_raw],
-            "caption": caption,
-            "model": CLIP_BASE.alias,
-        })
+        append_ai_action(
+            image_id,
+            {
+                "action": "ingest_image",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "tags": [
+                    {"label": label, "confidence": round(conf, 4)} for label, conf in tags_raw
+                ],
+                "caption": caption,
+                "model": CLIP_BASE.alias,
+            },
+        )
 
         return {
             "filename": filename,
-            "tags": [
-                {"label": label, "confidence": round(conf, 4)}
-                for label, conf in tags_raw
-            ],
+            "tags": [{"label": label, "confidence": round(conf, 4)} for label, conf in tags_raw],
             "caption": caption,
         }
     finally:
@@ -233,12 +236,7 @@ def preview_frame(image_bytes: bytes) -> dict:
     t0 = time.perf_counter()
     tags_raw = yolo.detect(image, models["yolo_model"])
     INFERENCE_LATENCY.labels(model="yolo_preview").observe(time.perf_counter() - t0)
-    return {
-        "tags": [
-            {"label": label, "confidence": round(conf, 4)}
-            for label, conf in tags_raw
-        ]
-    }
+    return {"tags": [{"label": label, "confidence": round(conf, 4)} for label, conf in tags_raw]}
 
 
 @celery_app.task
@@ -262,9 +260,7 @@ def find_similar_by_image(image_bytes: bytes, top_k: int = 10) -> list[dict]:
     t0 = time.perf_counter()
     embedding = models["clip_provider"].embed_image(image)
     INFERENCE_LATENCY.labels(model="clip_similar").observe(time.perf_counter() - t0)
-    return qdrant_pipeline.search(
-        models["qdrant_client"], CLIP_BASE, embedding, top_k=top_k
-    )
+    return qdrant_pipeline.search(models["qdrant_client"], CLIP_BASE, embedding, top_k=top_k)
 
 
 @celery_app.task
@@ -309,18 +305,18 @@ def check_and_retrain() -> dict:
 
         # MLFLOW_TRACKING_URI differs between local (localhost:5000) and Docker
         # (mlflow:5000) — env var lets the same code work in both environments
-        mlflow.set_tracking_uri(
-            os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
-        )
+        mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000"))
         mlflow.set_experiment("visualvault/yolo-retraining")
         with mlflow.start_run():
             mlflow.log_params({"correction_count": n, "promotion_threshold": 100})
-            mlflow.log_metrics({
-                "precision": result["precision"],
-                "recall": result["recall"],
-                "baseline_precision": result["baseline_precision"],
-                "baseline_recall": result["baseline_recall"],
-            })
+            mlflow.log_metrics(
+                {
+                    "precision": result["precision"],
+                    "recall": result["recall"],
+                    "baseline_precision": result["baseline_precision"],
+                    "baseline_recall": result["baseline_recall"],
+                }
+            )
             mlflow.set_tag("promoted", str(promoted))
             # Only log the artifact when promoted — avoids storing every failed
             # run's model weights in the MLflow artifact store
@@ -330,6 +326,7 @@ def check_and_retrain() -> dict:
         # Update Prometheus gauge so Grafana shows the improvement trend over runs.
         # Set regardless of promotion — even a non-promoted run's score is useful signal
         from app.core.metrics import YOLO_MEAN_CONFIDENCE
+
         YOLO_MEAN_CONFIDENCE.set(result["precision"])
 
         if promoted:

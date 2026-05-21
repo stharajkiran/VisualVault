@@ -8,7 +8,6 @@ All DB calls are mocked — no real PostgreSQL connection required.
 from datetime import date, datetime
 from unittest.mock import MagicMock, patch
 
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -20,6 +19,7 @@ client = TestClient(_app)
 
 
 # ── /governance/expired ────────────────────────────────────────────────────────
+
 
 def test_expired_assets_returns_list():
     """Returns expired asset rows when DB has results."""
@@ -51,6 +51,7 @@ def test_expired_assets_empty_when_db_down():
 
 # ── /governance/rights-missing ─────────────────────────────────────────────────
 
+
 def test_rights_missing_returns_list():
     """Returns assets with no usage_rights set."""
     rows = [
@@ -74,6 +75,7 @@ def test_rights_missing_empty_when_all_set():
 
 
 # ── /governance/audit/{asset_id} ───────────────────────────────────────────────
+
 
 def test_audit_returns_record():
     """Returns full governance record including ai_actions_log for a known asset."""
@@ -119,6 +121,7 @@ def test_audit_empty_actions_log():
 
 # ── DB helper functions ────────────────────────────────────────────────────────
 
+
 def test_write_governance_record_returns_true_on_success():
     """Returns True when PostgreSQL insert succeeds."""
     mock_conn = MagicMock()
@@ -127,6 +130,7 @@ def test_write_governance_record_returns_true_on_success():
 
     with patch("app.db.database._get_connection", return_value=mock_conn):
         from app.db.database import write_governance_record
+
         result = write_governance_record(42)
     assert result is True
 
@@ -135,6 +139,7 @@ def test_write_governance_record_returns_false_when_db_down():
     """Returns False without raising when PostgreSQL is unreachable."""
     with patch("app.db.database._get_connection", side_effect=Exception("connection refused")):
         from app.db.database import write_governance_record
+
         result = write_governance_record(42)
     assert result is False
 
@@ -147,6 +152,7 @@ def test_append_ai_action_returns_true_on_success():
 
     with patch("app.db.database._get_connection", return_value=mock_conn):
         from app.db.database import append_ai_action
+
         result = append_ai_action(42, {"action": "ingest_image", "timestamp": "2026-05-15"})
     assert result is True
 
@@ -155,5 +161,6 @@ def test_append_ai_action_returns_false_when_db_down():
     """Returns False without raising when PostgreSQL is unreachable."""
     with patch("app.db.database._get_connection", side_effect=Exception("connection refused")):
         from app.db.database import append_ai_action
+
         result = append_ai_action(42, {"action": "ingest_image", "timestamp": "2026-05-15"})
     assert result is False

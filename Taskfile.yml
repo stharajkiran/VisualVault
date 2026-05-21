@@ -50,6 +50,7 @@ tasks:
               pathlib.Path(d).mkdir(parents=True, exist_ok=True)
           print('Setup complete.')
           "
+      - uv run pre-commit install
 
   # ── Infrastructure ────────────────────────────────────────────────────────────
   infra-up:

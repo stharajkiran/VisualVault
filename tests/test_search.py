@@ -8,7 +8,6 @@ from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -20,8 +19,18 @@ _app.include_router(router)
 client = TestClient(_app)
 
 _FAKE_RESULTS = [
-    {"id": 1, "score": 0.95, "filename": "000000000001.jpg", "image_path": "data/index/000000000001.jpg"},
-    {"id": 2, "score": 0.90, "filename": "000000000002.jpg", "image_path": "data/index/000000000002.jpg"},
+    {
+        "id": 1,
+        "score": 0.95,
+        "filename": "000000000001.jpg",
+        "image_path": "data/index/000000000001.jpg",
+    },
+    {
+        "id": 2,
+        "score": 0.90,
+        "filename": "000000000002.jpg",
+        "image_path": "data/index/000000000002.jpg",
+    },
 ]
 
 
@@ -49,6 +58,7 @@ def _mock_app_state(asset_id: int | None = 9) -> MagicMock:
 
 # ── GET /search — id field regression ─────────────────────────────────────────
 
+
 def test_search_includes_id_in_results():
     """Search results include id field after Block 4E model change."""
     with patch("app.api.routes.search.registry") as mock_reg:
@@ -63,9 +73,12 @@ def test_search_includes_id_in_results():
 
 # ── GET /similar/{asset_id} ────────────────────────────────────────────────────
 
+
 def test_similar_returns_results():
     """Returns similar images excluding the queried asset."""
-    results_with_self = [{"id": 9, "score": 1.0, "filename": "self.jpg", "image_path": "x"}] + _FAKE_RESULTS
+    results_with_self = [
+        {"id": 9, "score": 1.0, "filename": "self.jpg", "image_path": "x"}
+    ] + _FAKE_RESULTS
     _app.state.qdrant_client = _mock_app_state(asset_id=9).qdrant_client
 
     with patch("app.api.routes.search.qdrant_pipeline.search", return_value=results_with_self):
@@ -87,7 +100,9 @@ def test_similar_returns_404_when_not_found():
 
 def test_similar_excludes_self():
     """The queried asset is never in its own similar results."""
-    all_results = [{"id": 5, "score": 1.0, "filename": "self.jpg", "image_path": "x"}] + _FAKE_RESULTS
+    all_results = [
+        {"id": 5, "score": 1.0, "filename": "self.jpg", "image_path": "x"}
+    ] + _FAKE_RESULTS
     _app.state.qdrant_client = _mock_app_state(asset_id=5).qdrant_client
 
     with patch("app.api.routes.search.qdrant_pipeline.search", return_value=all_results):
@@ -98,6 +113,7 @@ def test_similar_excludes_self():
 
 
 # ── POST /similar/upload ───────────────────────────────────────────────────────
+
 
 def test_similar_upload_returns_results():
     """Returns similar images when worker processes the uploaded image."""
@@ -131,5 +147,3 @@ def test_similar_upload_returns_500_on_timeout():
         )
 
     assert response.status_code == 500
-
-

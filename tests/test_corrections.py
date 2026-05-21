@@ -6,7 +6,7 @@ Label Studio tests mock httpx to avoid requiring a real server.
 File-write tests use tmp_path to avoid touching data/corrections/.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi import FastAPI
@@ -28,8 +28,10 @@ def _label_studio_payload(labels: list[str], filename: str = "test.jpg") -> dict
                 {
                     "type": "rectanglelabels",
                     "value": {
-                        "x": 10.0, "y": 20.0,
-                        "width": 30.0, "height": 40.0,
+                        "x": 10.0,
+                        "y": 20.0,
+                        "width": 30.0,
+                        "height": 40.0,
                         "rectanglelabels": [label],
                     },
                 }
@@ -40,6 +42,7 @@ def _label_studio_payload(labels: list[str], filename: str = "test.jpg") -> dict
 
 
 # ── Webhook endpoint tests ─────────────────────────────────────────────────────
+
 
 def test_submit_correction_writes_yolo_file(tmp_path):
     """Valid payload writes a YOLO11-format .txt file to corrections dir."""
@@ -103,11 +106,13 @@ def test_submit_correction_empty_results(tmp_path):
 
 # ── Label Studio helper tests ──────────────────────────────────────────────────
 
+
 def test_push_to_label_studio_no_ops_without_config():
     """Returns False immediately when env vars are not set."""
     with patch("app.core.label_studio.LABEL_STUDIO_URL", ""):
         with patch("app.core.label_studio.LABEL_STUDIO_API_KEY", ""):
             from app.core.label_studio import push_to_label_studio
+
             result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     assert result is False
 
@@ -119,6 +124,7 @@ def test_push_to_label_studio_returns_true_on_success():
             with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
                 mock_ls_cls.return_value.projects.import_tasks.return_value = None
                 from app.core.label_studio import push_to_label_studio
+
                 result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     assert result is True
 
@@ -130,6 +136,7 @@ def test_push_to_label_studio_passes_credentials_to_sdk():
             with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
                 mock_ls_cls.return_value.projects.import_tasks.return_value = None
                 from app.core.label_studio import push_to_label_studio
+
                 push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     mock_ls_cls.assert_called_once_with(base_url="http://localhost:8080", api_key="test-token")
 
@@ -143,6 +150,7 @@ def test_push_to_label_studio_sends_task_payload():
                     mock_import = mock_ls_cls.return_value.projects.import_tasks
                     mock_import.return_value = None
                     from app.core.label_studio import push_to_label_studio
+
                     push_to_label_studio("img.jpg", b"bytes", [("dog", 0.4)])
     call_kwargs = mock_import.call_args
     assert call_kwargs.kwargs["id"] == 42
@@ -158,5 +166,6 @@ def test_push_to_label_studio_returns_false_on_exception():
             with patch("app.core.label_studio.LabelStudio") as mock_ls_cls:
                 mock_ls_cls.return_value.projects.import_tasks.side_effect = Exception("timeout")
                 from app.core.label_studio import push_to_label_studio
+
                 result = push_to_label_studio("test.jpg", b"bytes", [("person", 0.3)])
     assert result is False
