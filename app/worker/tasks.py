@@ -1,6 +1,7 @@
 """Celery tasks: ingest_image, ingest_video, preview_frame, check_and_retrain (daily retraining beat)."""
 
 import hashlib
+import logging
 import os
 import shutil
 import subprocess
@@ -11,6 +12,7 @@ from io import BytesIO
 from pathlib import Path
 
 import ffmpeg
+from celery.signals import worker_ready
 from PIL import Image
 
 from app.core.label_studio import LOW_CONFIDENCE_THRESHOLD, push_to_label_studio
@@ -22,8 +24,23 @@ from app.vision import blip, yolo
 from app.vector_store import qdrant as qdrant_pipeline
 from app.worker.celery_app import celery_app
 
+logger = logging.getLogger(__name__)
+
 # Module-level cache — loaded once per worker process, reused for every task
 _models = None
+
+
+@worker_ready.connect
+def _warmup_models(**kwargs):
+    """Pre-load all models and run dummy forward passes when the worker starts."""
+    logger.info("Warming up models...")
+    models = _get_models()
+    dummy = Image.new("RGB", (224, 224))
+    models["clip_provider"].embed_image(dummy)
+    models["clip_provider"].embed_text("warmup")
+    yolo.detect(dummy, models["yolo_model"])
+    blip.caption(dummy, models["blip_model"], models["blip_processor"])
+    logger.info("All models warm and ready.")
 
 
 def _get_models() -> dict:

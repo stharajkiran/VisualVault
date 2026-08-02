@@ -38,7 +38,9 @@ def load_model() -> tuple[Blip2ForConditionalGeneration, Blip2Processor]:
     return model, processor
 
 
-def caption(image: Image.Image, model: Blip2ForConditionalGeneration, processor: Blip2Processor) -> str:
+def caption(
+    image: Image.Image, model: Blip2ForConditionalGeneration, processor: Blip2Processor
+) -> str:
     """
     Generate a natural language caption for a PIL image.
 
@@ -68,5 +70,5 @@ def caption(image: Image.Image, model: Blip2ForConditionalGeneration, processor:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     model, processor = load_model()
-    img = Image.open("assets/img.jpg").convert("RGB")
+    img = Image.open("assets/test_img.jpg").convert("RGB")
     print(caption(img, model, processor))

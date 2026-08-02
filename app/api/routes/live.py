@@ -1,11 +1,12 @@
 """Live preview endpoints — POST /live/frame (HTTP) and WebSocket /ws/live."""
+
 import asyncio
 from functools import partial
 
 from fastapi import APIRouter, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
-from app.worker.tasks import preview_frame
+from app.worker.celery_app import celery_app
 
 router = APIRouter()
 
@@ -36,7 +37,7 @@ async def live_frame(file: UploadFile) -> PreviewResponse:
     image_bytes = await file.read()
     loop = asyncio.get_event_loop()
     try:
-        task = preview_frame.delay(image_bytes)
+        task = celery_app.send_task("app.worker.tasks.preview_frame", args=[image_bytes])
         result = await loop.run_in_executor(None, partial(task.get, timeout=5))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Preview failed: {exc}")
@@ -63,7 +64,7 @@ async def ws_live(websocket: WebSocket) -> None:
     try:
         while True:
             image_bytes = await websocket.receive_bytes()
-            task = preview_frame.delay(image_bytes)
+            task = celery_app.send_task("app.worker.tasks.preview_frame", args=[image_bytes])
             result = await loop.run_in_executor(None, partial(task.get, timeout=5))
             await websocket.send_json(result)
     except WebSocketDisconnect:

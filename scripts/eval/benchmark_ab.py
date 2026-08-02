@@ -16,7 +16,7 @@ from PIL import Image
 from app.embedding.config import CLIP_BASE, CLIP_LARGE
 from app.embedding.provider import CLIPPyTorchProvider
 
-IMG_PATH = "assets/img.jpg"
+IMG_PATH = "assets/test_img.jpg"
 WARMUP = 20
 RUNS = 200
 
@@ -84,9 +84,19 @@ large_results = benchmark(large_provider)
 print(f"\n{'─'*55}")
 print(f"{'Metric':<30} {'ViT-B/32':>10} {'ViT-L/14':>10}")
 print(f"{'─'*55}")
-print(f"{'Preprocessing p50 (ms)':<30} {base_results['pre_p50']:>10.2f} {large_results['pre_p50']:>10.2f}")
-print(f"{'Preprocessing p95 (ms)':<30} {base_results['pre_p95']:>10.2f} {large_results['pre_p95']:>10.2f}")
-print(f"{'Inference p50 (ms)':<30} {base_results['inf_p50']:>10.2f} {large_results['inf_p50']:>10.2f}")
-print(f"{'Inference p95 (ms)':<30} {base_results['inf_p95']:>10.2f} {large_results['inf_p95']:>10.2f}")
+print(
+    f"{'Preprocessing p50 (ms)':<30} {base_results['pre_p50']:>10.2f} {large_results['pre_p50']:>10.2f}"
+)
+print(
+    f"{'Preprocessing p95 (ms)':<30} {base_results['pre_p95']:>10.2f} {large_results['pre_p95']:>10.2f}"
+)
+print(
+    f"{'Inference p50 (ms)':<30} {base_results['inf_p50']:>10.2f} {large_results['inf_p50']:>10.2f}"
+)
+print(
+    f"{'Inference p95 (ms)':<30} {base_results['inf_p95']:>10.2f} {large_results['inf_p95']:>10.2f}"
+)
 print(f"{'─'*55}")
-print(f"{'Inference slowdown':<30} {'1.0×':>10} {large_results['inf_p50']/base_results['inf_p50']:>9.1f}×")
+print(
+    f"{'Inference slowdown':<30} {'1.0×':>10} {large_results['inf_p50']/base_results['inf_p50']:>9.1f}×"
+)

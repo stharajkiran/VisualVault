@@ -2,7 +2,7 @@
 Block 1A acceptance criterion — run all three models on a single image.
 
 Usage:
-    python scripts/run_pipeline.py assets/img.jpg
+    uv run python scripts/run_pipeline.py assets/test_img.jpg
 """
 
 import sys

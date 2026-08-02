@@ -17,7 +17,7 @@ from app.embedding.clip_pytorch import load_model
 from app.embedding.clip_tensorrt import load_engine
 
 TRT_LOGGER = trt.Logger(trt.Logger.ERROR)
-img = Image.open("assets/img.jpg").convert("RGB")
+img = Image.open("assets/test_img.jpg").convert("RGB")
 WARMUP = 20
 RUNS = 2000
 
@@ -46,9 +46,7 @@ print("\nPreprocessing (CPU, excluded from inference timing below)")
 print(f"  p50: {pre_p50:.2f}ms  p95: {pre_p95:.2f}ms")
 
 # Pre-process once — used as input for both inference benchmarks
-pixel_values = pt_processor(images=img, return_tensors="pt")["pixel_values"].to(
-    dtype=torch.float32
-)
+pixel_values = pt_processor(images=img, return_tensors="pt")["pixel_values"].to(dtype=torch.float32)
 pixel_values_gpu = pixel_values.to(device="cuda")
 
 ###################################################################################################

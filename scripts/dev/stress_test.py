@@ -13,7 +13,7 @@ import threading
 import requests
 
 URL = "http://localhost:8000/upload"
-IMAGE_PATH = "assets/img.jpg"
+IMAGE_PATH = "assets/test_img.jpg"
 NUM_REQUESTS = 20
 
 

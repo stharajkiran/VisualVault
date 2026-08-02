@@ -25,7 +25,7 @@ jobs:
         run: uv run --with ruff ruff check .   # lint every .py file
 
   # ── Job 2: Test ───────────────────────────────────────────────────────────
-  # Installs dependencies and runs pytest on all three test files.
+  # Installs dependencies and runs pytest across the complete test suite.
   # Uses CPU torch (not CUDA) to keep CI fast — no GPU on GitHub runners.
   test:
     name: Test

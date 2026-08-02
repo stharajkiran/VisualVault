@@ -18,11 +18,33 @@ import httpx
 import streamlit as st
 from pathlib import Path
 
+import sys
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+    handlers=[logging.StreamHandler(sys.stderr)],
+)
+logger = logging.getLogger(__name__)
+
+
 # Reads from environment variable so it works both locally and inside Docker.
 # Locally: API_BASE defaults to localhost. In Docker: set to http://api:8000.
 API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8000")
-DATA_INDEX_DIR = Path(os.getenv("DATA_INDEX_DIR", str(Path(__file__).parent.parent.parent / "data" / "index")))
-DATA_UPLOADS_DIR = Path(os.getenv("DATA_UPLOADS_DIR", str(Path(__file__).parent.parent.parent / "data" / "uploads")))
+print(f"Using API_BASE: {API_BASE}")
+logger.info(f"Using API_BASE: {API_BASE}")
+DATA_INDEX_DIR = Path(
+    os.getenv("DATA_INDEX_DIR", str(Path(__file__).parent.parent.parent / "data" / "index"))
+)
+DATA_UPLOADS_DIR = Path(
+    os.getenv(
+        "DATA_UPLOADS_DIR",
+        str(Path(__file__).parent.parent.parent / "data" / "uploads"),
+    )
+)
+logger.info(f"Index directory: {DATA_INDEX_DIR}")
+logger.info(f"Uploads directory: {DATA_UPLOADS_DIR}")
 
 
 def _resolve_image_path(filename: str) -> Path | None:
@@ -33,9 +55,10 @@ def _resolve_image_path(filename: str) -> Path | None:
             return p
     return None
 
+
 st.set_page_config(page_title="VisualVault", layout="wide")
 st.title("VisualVault")
-st.caption("Semantic image search — upload images, search by description.")
+st.caption("AI media discovery and review — enrich, search, and review uploaded assets.")
 
 page = st.sidebar.radio("Navigate", ["Upload", "Search", "Governance", "Live"])
 
@@ -59,7 +82,13 @@ if page == "Upload":
                     try:
                         response = httpx.post(
                             f"{API_BASE}/upload",
-                            files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)},
+                            files={
+                                "file": (
+                                    uploaded_file.name,
+                                    uploaded_file.getvalue(),
+                                    uploaded_file.type,
+                                )
+                            },
                             timeout=30,
                         )
                         response.raise_for_status()
@@ -88,7 +117,9 @@ if page == "Upload":
                                 st.write(f"- {tag['label']} ({tag['confidence']:.0%} confidence)")
 
                     except httpx.ConnectError:
-                        st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")
+                        st.error(
+                            "Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running."
+                        )
                     except Exception as e:
                         st.error(f"Upload failed: {e}")
 
@@ -101,7 +132,13 @@ if page == "Upload":
                 try:
                     response = httpx.post(
                         f"{API_BASE}/upload/video",
-                        files={"file": (uploaded_video.name, uploaded_video.getvalue(), uploaded_video.type)},
+                        files={
+                            "file": (
+                                uploaded_video.name,
+                                uploaded_video.getvalue(),
+                                uploaded_video.type,
+                            )
+                        },
                         timeout=60,
                     )
                     response.raise_for_status()
@@ -123,16 +160,24 @@ if page == "Upload":
                         result = None
 
                     if result:
-                        st.success(f"Indexed {result['frame_count']} keyframes from {result['video_filename']}")
+                        st.success(
+                            f"Indexed {result['frame_count']} keyframes from {result['video_filename']}"
+                        )
                         for frame in result["frames"]:
                             with st.expander(frame["filename"]):
                                 st.write(f"**Caption:** {frame['caption']}")
-                                st.write("**Tags:** " + ", ".join(
-                                    f"{t['label']} ({t['confidence']:.0%})" for t in frame["tags"]
-                                ))
+                                st.write(
+                                    "**Tags:** "
+                                    + ", ".join(
+                                        f"{t['label']} ({t['confidence']:.0%})"
+                                        for t in frame["tags"]
+                                    )
+                                )
 
                 except httpx.ConnectError:
-                    st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")
+                    st.error(
+                        "Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running."
+                    )
                 except Exception as e:
                     st.error(f"Video upload failed: {e}")
 
@@ -161,7 +206,9 @@ elif page == "Search":
                 st.session_state.search_results = response.json()
                 st.session_state.similar_asset_id = None
             except httpx.ConnectError:
-                st.error("Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running.")
+                st.error(
+                    "Cannot connect to the API. Make sure `uvicorn app.api.main:app --reload` is running."
+                )
             except Exception as e:
                 st.error(f"Search failed: {e}")
 
@@ -211,7 +258,9 @@ elif page == "Search":
 
     st.divider()
     st.subheader("Reverse Image Search")
-    st.caption("Upload any image to find visually similar ones in the library. The image is not indexed.")
+    st.caption(
+        "Upload any image to find visually similar ones in the library. The image is not indexed."
+    )
 
     upload_for_similar = st.file_uploader(
         "Upload image", type=["jpg", "jpeg", "png", "webp"], key="reverse_search"
@@ -221,7 +270,13 @@ elif page == "Search":
             try:
                 resp = httpx.post(
                     f"{API_BASE}/similar/upload",
-                    files={"file": (upload_for_similar.name, upload_for_similar.getvalue(), upload_for_similar.type)},
+                    files={
+                        "file": (
+                            upload_for_similar.name,
+                            upload_for_similar.getvalue(),
+                            upload_for_similar.type,
+                        )
+                    },
                     timeout=15,
                 )
                 resp.raise_for_status()
@@ -297,7 +352,9 @@ elif page == "Governance":
 # ── Live page ──────────────────────────────────────────────────────────────────
 elif page == "Live":
     st.header("Live Preview")
-    st.caption("Point your webcam at any scene — capture a frame to see YOLO tags. Frames are not indexed.")
+    st.caption(
+        "Point your webcam at any scene — capture a frame to see YOLO tags. Frames are not indexed."
+    )
 
     live_mode = st.checkbox("Start Live Preview")
     frame = st.camera_input("Webcam", label_visibility="collapsed")

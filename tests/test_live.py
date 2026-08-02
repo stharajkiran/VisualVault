@@ -40,16 +40,21 @@ def _mock_task(result: dict) -> MagicMock:
 
 # ── POST /live/frame ───────────────────────────────────────────────────────────
 
+
 def test_live_frame_returns_tags():
     """Returns YOLO tags when the worker detects objects."""
     mock_task = _mock_task({"tags": _FAKE_TAGS})
-    with patch("app.api.routes.live.preview_frame") as mock_pf:
-        mock_pf.delay.return_value = mock_task
+    with patch("app.api.routes.live.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         response = client.post(
             "/live/frame",
             files={"file": ("frame.jpg", _jpeg_bytes(), "image/jpeg")},
         )
     assert response.status_code == 200
+    mock_celery.send_task.assert_called_once_with(
+        "app.worker.tasks.preview_frame",
+        args=[_jpeg_bytes()],
+    )
     tags = response.json()["tags"]
     assert len(tags) == 2
     assert tags[0]["label"] == "person"
@@ -59,8 +64,8 @@ def test_live_frame_returns_tags():
 def test_live_frame_returns_empty_when_no_detections():
     """Returns empty tags list when YOLO finds nothing in the frame."""
     mock_task = _mock_task({"tags": []})
-    with patch("app.api.routes.live.preview_frame") as mock_pf:
-        mock_pf.delay.return_value = mock_task
+    with patch("app.api.routes.live.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         response = client.post(
             "/live/frame",
             files={"file": ("frame.jpg", _jpeg_bytes(), "image/jpeg")},
@@ -73,8 +78,8 @@ def test_live_frame_returns_500_on_timeout():
     """Returns 500 when the Celery task times out."""
     mock_task = MagicMock()
     mock_task.get.side_effect = Exception("Task timed out")
-    with patch("app.api.routes.live.preview_frame") as mock_pf:
-        mock_pf.delay.return_value = mock_task
+    with patch("app.api.routes.live.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         response = client.post(
             "/live/frame",
             files={"file": ("frame.jpg", _jpeg_bytes(), "image/jpeg")},
@@ -84,11 +89,12 @@ def test_live_frame_returns_500_on_timeout():
 
 # ── WebSocket /ws/live ─────────────────────────────────────────────────────────
 
+
 def test_ws_live_returns_tags_for_frame():
     """WebSocket accepts bytes, dispatches task, sends back JSON tags."""
     mock_task = _mock_task({"tags": _FAKE_TAGS})
-    with patch("app.api.routes.live.preview_frame") as mock_pf:
-        mock_pf.delay.return_value = mock_task
+    with patch("app.api.routes.live.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         with client.websocket_connect("/ws/live") as ws:
             ws.send_bytes(_jpeg_bytes())
             data = ws.receive_json()
@@ -97,6 +103,7 @@ def test_ws_live_returns_tags_for_frame():
 
 
 # ── preview_frame task ─────────────────────────────────────────────────────────
+
 
 def test_preview_frame_returns_tag_structure():
     """preview_frame returns correct dict structure when YOLO detects objects."""
@@ -110,6 +117,7 @@ def test_preview_frame_returns_tag_structure():
                 with patch("app.worker.tasks.INFERENCE_LATENCY") as mock_lat:
                     mock_lat.labels.return_value.observe = MagicMock()
                     from app.worker.tasks import preview_frame
+
                     result = preview_frame(buf.getvalue())
 
     assert "tags" in result
@@ -129,6 +137,7 @@ def test_preview_frame_returns_empty_when_no_detections():
                 with patch("app.worker.tasks.INFERENCE_LATENCY") as mock_lat:
                     mock_lat.labels.return_value.observe = MagicMock()
                     from app.worker.tasks import preview_frame
+
                     result = preview_frame(buf.getvalue())
 
     assert result["tags"] == []

@@ -18,7 +18,7 @@ COPY pyproject.toml uv.lock ./
 
 # Install full ML stack + GPU deps
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --extra ml-worker --extra gpu --no-install-project
+    uv sync --frozen --no-dev --extra ml-worker --extra gpu --extra db --no-install-project
 
 COPY app/ ./app/
 COPY artifacts/ ./artifacts/

@@ -13,7 +13,7 @@ tasks:
       - task --list
     silent: true
 
-  # ── Prerequisites ─────────────────────────────────────────────────────────────
+  # ── Prerequisites ────────────────────────────────────────────────────────────
   check:
     desc: Verify prerequisites (uv, docker, docker daemon)
     run: once
@@ -33,7 +33,7 @@ tasks:
       - uv sync --extra ml-worker --extra gpu --extra dev --extra ui --extra db
       - echo "Dependencies ready."
 
-  # ── Environment setup ─────────────────────────────────────────────────────────
+  # ── Environment setup ────────────────────────────────────────────────────────
   setup:
     desc: Create .env and data directories
     deps: [check]
@@ -51,6 +51,36 @@ tasks:
           print('Setup complete.')
           "
       - uv run pre-commit install
+
+  # ── Data ─────────────────────────────────────────────────────────────────────
+  download:
+    desc: Download COCO val2017 images — skips if already present
+    preconditions:
+      - sh: uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('.env').exists() else 1)"
+        msg: ".env not found. Run 'task setup' first."
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/raw').rglob('*.jpg')) >= 5000 else 1)"
+    cmds:
+      - echo "Downloading COCO val2017 images (~1GB)..."
+      - uv run python scripts/data/download_coco.py
+
+  split:
+    desc: Split data into index/holdout sets — skips if already split
+    deps: [download]
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/index').glob('*.jpg')) >= 4000 else 1)"
+      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/holdout').glob('*.jpg')) >= 1000 else 1)"
+    cmds:
+      - echo "Splitting data into index/holdout sets..."
+      - uv run python scripts/data/split_data.py
+
+  check-weights:
+    desc: Download YOLO11n weights if not present in artifacts/models/
+    status:
+      - uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('artifacts/models/yolo11n.pt').exists() else 1)"
+    cmds:
+      - echo "Downloading YOLO11n weights..."
+      - uv run python -c "from ultralytics import YOLO; import pathlib, shutil; dest=pathlib.Path('artifacts/models/yolo11n.pt'); dest.parent.mkdir(parents=True, exist_ok=True); YOLO('yolo11n.pt'); src=pathlib.Path('yolo11n.pt'); shutil.move(str(src), str(dest)) if src.exists() else None; print('YOLO11n weights ready at', dest)"
 
   # ── Infrastructure ────────────────────────────────────────────────────────────
   infra-up:
@@ -82,30 +112,10 @@ tasks:
       - docker compose down
       - echo "Done."
 
-  # ── Data ──────────────────────────────────────────────────────────────────────
-  download:
-    desc: Download COCO val2017 images — skips if already present
-    preconditions:
-      - sh: uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('.env').exists() else 1)"
-        msg: ".env not found. Run 'task setup' first."
-    status:
-      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/raw').rglob('*.jpg')) >= 5000 else 1)"
-    cmds:
-      - echo "Downloading COCO val2017 images (~1GB)..."
-      - uv run python scripts/data/download_coco.py
-
-  split:
-    desc: Split data into index/holdout sets — skips if already split
-    deps: [download]
-    status:
-      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/index').glob('*.jpg')) >= 4000 else 1)"
-      - uv run python -c "import pathlib, sys; sys.exit(0 if sum(1 for _ in pathlib.Path('data/holdout').glob('*.jpg')) >= 1000 else 1)"
-    cmds:
-      - echo "Splitting data into index/holdout sets..."
-      - uv run python scripts/data/split_data.py
-
+  # ── Indexing ──────────────────────────────────────────────────────────────────
   index:
     desc: Embed and upsert 4k images into Qdrant — skips if already indexed
+    run: once
     deps: [split, infra-up]
     status:
       - uv run python -c "import urllib.request,json,sys; r=json.loads(urllib.request.urlopen('{{.QDRANT_URL}}/collections/{{.COLLECTION}}').read()); sys.exit(0 if r.get('result',{}).get('points_count',0)>=4000 else 1)"
@@ -114,16 +124,18 @@ tasks:
       - uv run python scripts/data/index_images.py
       - echo "Indexing complete."
 
-  # ── Model weights ────────────────────────────────────────────────────────────
-  check-weights:
-    desc: Download YOLO11n weights if not present in artifacts/models/
-    status:
-      - uv run python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('artifacts/models/yolo11n.pt').exists() else 1)"
+  # ── Bootstrap ────────────────────────────────────────────────────────────────
+  bootstrap:
+    desc: Full setup from a fresh clone — install, infra, data, weights, index
+    deps: [install, setup, infra-up, check-weights, index]
     cmds:
-      - echo "Downloading YOLO11n weights..."
-      - uv run python -c "from ultralytics import YOLO; import pathlib, shutil; dest=pathlib.Path('artifacts/models/yolo11n.pt'); dest.parent.mkdir(parents=True, exist_ok=True); YOLO('yolo11n.pt'); src=pathlib.Path('yolo11n.pt'); shutil.move(str(src), str(dest)) if src.exists() else None; print('YOLO11n weights ready at', dest)"
+      - echo ""
+      - echo "Bootstrap complete. Start services in three separate terminals:"
+      - echo "  task api"
+      - echo "  task worker"
+      - echo "  task ui"
 
-  # ── Services ──────────────────────────────────────────────────────────────────
+  # ── Local development ─────────────────────────────────────────────────────────
   api:
     desc: Start FastAPI on http://127.0.0.1:8000
     deps: [infra-up]
@@ -144,7 +156,15 @@ tasks:
       - echo "Starting Streamlit UI on http://127.0.0.1:8501"
       - uv run streamlit run app/ui/app.py
 
-  # ── Evaluation and testing ────────────────────────────────────────────────────
+  dev:
+    desc: Local development — bootstrap then open API and worker in new terminals, UI in current (Windows only)
+    deps: [bootstrap]
+    cmds:
+      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task api"
+      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task worker"
+      - task ui
+
+  # ── Testing & evaluation ──────────────────────────────────────────────────────
   test:
     desc: Run test suite
     cmds:
@@ -164,32 +184,28 @@ tasks:
       - echo "Running OOD drift detection..."
       - uv run python scripts/eval/detect_drift.py
 
-  # ── Bootstrap ────────────────────────────────────────────────────────────────
-  bootstrap:
-    desc: Full setup from a fresh clone — install, infra, data, weights, index
-    deps: [install, setup, infra-up, check-weights, index]
+  # ── Docker ────────────────────────────────────────────────────────────────────
+  build:
+    desc: Build Docker images — skips if images already exist
+    status:
+      - docker image inspect visualvault-api:latest visualvault-worker:latest visualvault-ui:latest
     cmds:
-      - echo ""
-      - echo "Bootstrap complete. Start services in three separate terminals:"
-      - echo "  task api"
-      - echo "  task worker"
-      - echo "  task ui"
+      - echo "Building Docker images..."
+      - docker compose build
+      - echo "Build complete."
 
-  # ── Run everything ───────────────────────────────────────────────────────────
-  dev:
-    desc: Local development — bootstrap then open API and worker in new terminals, UI in current (Windows only)
-    deps: [bootstrap]
-    cmds:
-      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task api"
-      - Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '{{.USER_WORKING_DIR}}'; task worker"
-      - task ui
-
-  # ── Run everything ───────────────────────────────────────────────────────────
   up:
-    desc: Full end-to-end — bootstrap data then build and start all services in Docker
+    desc: Full end-to-end — bootstrap data, build images if needed, start all services
+    deps: [bootstrap, build]
+    cmds:
+      - echo "Starting all services..."
+      - docker compose up
+
+  rebuild:
+    desc: Force rebuild Docker images and restart all services
     deps: [bootstrap]
     cmds:
-      - echo "Building and starting all services..."
+      - echo "Rebuilding and starting all services..."
       - docker compose up --build
 
   down:
@@ -197,44 +213,13 @@ tasks:
     cmds:
       - docker compose down
 
-  # ── Phase shortcuts ───────────────────────────────────────────────────────────
-  phase1:
-    desc: "Phase 1 — Core search engine: infra + data + index"
-    deps: [setup, infra-up, index]
+  # ── Observability ─────────────────────────────────────────────────────────────
+  ps:
+    desc: Show running container status
     cmds:
-      - echo ""
-      - echo "Phase 1 ready."
-      - echo "  Start services in separate terminals:"
-      - echo "    task api"
-      - echo "    task worker"
-      - echo "    task ui"
+      - docker compose ps
 
-  phase2:
-    desc: "Phase 2 — Phase 1 + Prometheus + Grafana monitoring"
-    deps: [setup, infra-full, index]
+  logs:
+    desc: Tail logs from all containers (Ctrl-C to stop)
     cmds:
-      - echo ""
-      - echo "Phase 2 ready - monitoring stack included."
-      - 'echo "  Grafana:    http://127.0.0.1:3000  (admin / see .env)"'
-      - 'echo "  Prometheus: http://127.0.0.1:9090"'
-      - echo "  Start services in separate terminals:"
-      - echo "    task api"
-      - echo "    task worker"
-      - echo "    task ui"
-
-  phase3:
-    desc: "Phase 3 — Phase 2 + Label Studio active learning"
-    deps: [setup, infra-full, index]
-    cmds:
-      - echo ""
-      - echo "Phase 3 ready - Label Studio active learning included."
-      - 'echo "  Label Studio: http://127.0.0.1:8090"'
-      - 'echo "  Grafana:      http://127.0.0.1:3000"'
-      - echo "  Start services in separate terminals:"
-      - echo "    task api"
-      - echo "    task worker"
-      - echo "    task ui"
-
-  all:
-    desc: Full end-to-end setup (same as phase1)
-    deps: [phase1]
+      - docker compose logs -f

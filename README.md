@@ -1,83 +1,128 @@
 # VisualVault
 
-**Semantic image and video search with a self-healing ML pipeline.**
+**AI media discovery and review for a small creative team.**
 
-94% Recall@10 · 3.8× TensorRT speedup · 86% YOLO precision · 88 img/min batch throughput · full MLOps stack
+Semantic search · asynchronous image/video enrichment · similarity search · review workflows
 
-[![HF Spaces](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/kstha/visualvault-demo)
+[![HF Spaces](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/kstha/visualvault-demo) [![CI](https://github.com/stharajkiran/VisualVault/actions/workflows/ci.yml/badge.svg)](https://github.com/stharajkiran/VisualVault/actions/workflows/ci.yml)
 
 ---
 
 ## What it does
 
-VisualVault is a production-grade digital asset management platform. Upload images and videos — three CV models run automatically (CLIP for semantic embedding, YOLO11n for object tagging, BLIP-2 for natural language captioning). Search your entire library in plain English. The system monitors its own embedding drift, flags uncertain detections for human review, and fine-tunes the detection model automatically when enough corrections accumulate.
+VisualVault helps a small creative team make its image and video library easier to find and review. Upload media once; a background worker creates CLIP search embeddings, YOLO object tags, and optional BLIP-2 captions. Team members can search in plain English, find visually similar assets, and inspect media that needs metadata follow-up.
+
+The project is a portfolio-scale AI media search and intake service, not a full enterprise digital asset management system. Its primary workflows are **Search**, **Ingest**, and **Review**. Its scope and intentional deferrals are stated below.
 
 ---
 
 ## Screenshots
 
-![Search results](assets/search.png)
-*Natural language search — returns ranked results from 4,000 indexed images*
+![Search results](assets/search_man_riding_on_horse.png)
+_Natural language search — returns ranked results from 4,000 indexed images_
 
 ![Upload and ingestion](assets/upload_caption.png)
-*Upload flow — YOLO object tags, BLIP-2 caption, and confidence scores returned per image*
+_Upload flow — YOLO object tags, BLIP-2 caption, and confidence scores returned per image_
 
 ---
 
-## Measured results
+## Measured results and scope
 
-*All metrics measured on held-out data — none of these numbers come from the training set.*
+These are recorded local benchmarks from May 2026 on an RTX 5090 development machine. They are not service-level guarantees.
 
-| Metric | Value | Notes |
-|---|---|---|
-| Recall@10 (CLIP ViT-B/32) | **0.94** | 200 eval queries, 4k indexed images |
-| Search latency p95 | **15ms** | Qdrant, top-10, 4k images |
-| Indexing throughput | **55 img/s** | CLIP embed + Qdrant upsert |
-| Batch ingestion | **88 img/min** | Celery async pipeline, single worker |
-| TensorRT speedup | **3.8×** | 0.94ms vs 3.58ms (CLIP image encoder) |
-| Video processing | **230× real-time** | FFmpeg keyframe extraction, 0.26s/min |
-| YOLO precision (holdout) | **86.1%** | 200 held-out COCO images, class-presence |
-| YOLO recall (holdout) | **78.1%** | Same evaluation, confidence ≥ 0.25 |
-| YOLO F1 (holdout) | **81.9%** | Harmonic mean |
-| OOD drift score | **0.339** | 2.3× above alert threshold of 0.15 |
+| Metric                    | Value              | Notes                                    |
+| ------------------------- | ------------------ | ---------------------------------------- |
+| Recall@10 (CLIP ViT-B/32) | **0.94**           | 200 GPT-4o-mini-generated queries; correct asset is in the 4k indexed COCO corpus |
+| Indexing throughput       | **55 img/s**       | CLIP embedding plus Qdrant upsert during bulk indexing |
+| Batch ingestion           | **88 img/min**     | Celery pipeline on one Windows solo worker, 50-image batch |
+| TensorRT speedup          | **3.8×**           | CLIP image-encoder inference p50: 0.94ms vs 3.58ms; CPU preprocessing still dominates single-image end-to-end time |
+| Video processing          | **230× real-time** | FFmpeg keyframe extraction benchmark: 0.26s per minute of synthetic footage |
+| YOLO precision (holdout)  | **86.1%**          | 200 held-out COCO images; class-presence metric at confidence >= 0.25 |
+| YOLO recall (holdout)     | **78.1%**          | Same held-out class-presence evaluation |
+| YOLO F1 (holdout)         | **81.9%**          | Harmonic mean of the reported class-presence precision and recall |
+| OOD drift score           | **0.339**          | 10-image OOD batch compared with the indexed COCO embedding baseline; alert threshold 0.15 |
+
+The previously recorded 15ms search p95 is intentionally omitted from the public table because its benchmark is not yet a supported, reproducible evaluation command.
+
+| Measurement | Reproduction command |
+| --- | --- |
+| Retrieval Recall@10 | `uv run python scripts/eval/eval_recall.py` |
+| Bulk indexing throughput | `uv run python scripts/data/index_images.py` |
+| Batch-ingestion throughput | `uv run python scripts/data/batch_ingest.py --folder data/index --limit 50` |
+| CLIP TensorRT benchmark | `uv run python scripts/eval/benchmark_clip.py` |
+| Video extraction benchmark | `uv run python scripts/eval/benchmark_video.py` |
+| YOLO held-out evaluation | `uv run python scripts/eval/eval_yolo_holdout.py --limit 200 --threshold 0.25` |
+| OOD drift score | `uv run python scripts/eval/detect_drift.py --folder data/ood_test` |
+
+The retrieval evaluation is an indexed-corpus benchmark, not held-out retrieval generalization; the YOLO result is the project's held-out model-quality measurement.
+
+---
+
+## Quality checks
+
+The repository currently has **65 automated tests** covering API routes, worker task behavior, evaluation helpers, video extraction, corrections, governance, and retraining helpers. Run the local publication checks with:
+
+```powershell
+uv run pytest tests/ -q
+uv run ruff check app tests scripts
+docker compose config --quiet
+```
+
+The CI workflow runs linting, the test suite, and API/UI Docker build checks on pushes and pull requests to `main`. The GPU worker image is intentionally excluded from GitHub-hosted Docker builds because of its size.
+
+---
+
+## Human review and model experimentation
+
+Low-confidence YOLO detections can be queued in Label Studio for human review, and submitted corrections are stored in PostgreSQL and YOLO label files. The project also includes a scheduled candidate-retraining experiment logged to MLflow.
+
+The retraining path is an **experimental portfolio workflow**, not an automatic production self-healing system: its current candidate comparison uses mean detection confidence as a proxy while full ground-truth promotion gating is deferred. Any model decision should be human reviewed. The implementation is in [`app/worker/tasks.py`](app/worker/tasks.py) (`check_and_retrain`) and [`scripts/model/retrain_yolo.py`](scripts/model/retrain_yolo.py).
 
 ---
 
 ## Architecture
 
+The diagram includes the three primary workflows plus optional engineering experiments (live preview, drift monitoring, and candidate retraining). The portfolio demo leads with Search, Ingest, and Review.
+
 ```mermaid
 flowchart TD
-    UI([Streamlit UI])
+    classDef ui     fill:#7c3aed,stroke:#5b21b6,color:#fff,font-weight:bold
+    classDef api     fill:#1d4ed8,stroke:#1e3a8a,color:#fff
+    classDef worker  fill:#c2410c,stroke:#9a3412,color:#fff
+    classDef storage fill:#15803d,stroke:#14532d,color:#fff
+    classDef mlops   fill:#0e7490,stroke:#164e63,color:#fff
+
+    UI([Streamlit UI]):::ui
 
     subgraph API [FastAPI]
-        UP[POST /upload]
-        SR[GET /search]
-        SM[GET /similar]
-        LV[POST /live/frame]
-        DR[POST /drift/detect]
-        GV[GET /governance]
-        MT[GET /metrics]
+        UP[POST /upload]:::api
+        SR[GET /search]:::api
+        SM[GET /similar]:::api
+        LV[POST /live/frame]:::api
+        DR[POST /drift/detect]:::api
+        GV[GET /governance]:::api
+        MT[GET /metrics]:::api
     end
 
     subgraph Worker [Celery Worker — GPU]
-        ING[ingest_image\nCLIP + YOLO + BLIP-2]
-        PRV[preview_frame\nYOLO only]
-        FSI[find_similar_by_image\nCLIP only]
-        RTR[check_and_retrain\nCelery Beat — daily]
+        ING[ingest_image<br/>CLIP + YOLO + BLIP-2]:::worker
+        PRV[preview_frame<br/>YOLO only]:::worker
+        FSI[find_similar_by_image<br/>CLIP only]:::worker
+        RTR[Candidate retraining<br/>Celery Beat — daily]:::worker
     end
 
     subgraph Storage [Storage]
-        QD[(Qdrant\n4k images · 512-dim)]
-        PG[(PostgreSQL\ncorrections · governance)]
-        RD[(Redis\nCelery broker)]
+        QD[(Qdrant<br/>4k images · 512-dim)]:::storage
+        PG[(PostgreSQL<br/>corrections · governance)]:::storage
+        RD[(Redis<br/>Celery broker)]:::storage
     end
 
     subgraph MLOps [MLOps]
-        LS[Label Studio\nhuman review]
-        ML[MLflow\nexperiment tracking]
-        DV[DVC\ndata versioning]
-        PR[Prometheus]
-        GR[Grafana]
+        LS[Label Studio<br/>human review]:::mlops
+        ML[MLflow<br/>experiment tracking]:::mlops
+        DV[DVC<br/>data versioning]:::mlops
+        PR[Prometheus]:::mlops
+        GR[Grafana]:::mlops
     end
 
     UI --> UP & SR & SM & LV & DR & GV
@@ -95,8 +140,8 @@ flowchart TD
 
     RTR -->|100+ corrections| LS
     LS -->|verified labels| PG
-    RTR -->|fine-tune| ML
-    RTR -->|version model| DV
+    RTR -->|candidate experiment| ML
+    RTR -->|candidate artifact| DV
 
     FSI --> QD
 ```
@@ -105,33 +150,34 @@ flowchart TD
 
 ## Tech stack
 
-| Layer | Tools |
-|---|---|
-| ML models | CLIP ViT-B/32, YOLO11n, BLIP-2 OPT-2.7B, TensorRT |
-| Search | Qdrant (vector store, 512-dim cosine) |
-| Backend | FastAPI, Celery, Redis |
-| Database | PostgreSQL (corrections, governance) |
-| Frontend | Streamlit (main app + HF Spaces demo) |
-| MLOps | MLflow, DVC, Label Studio |
-| Monitoring | Prometheus, Grafana |
-| Infrastructure | Docker Compose, GitHub Actions CI |
+| Layer          | Tools                                             |
+| -------------- | ------------------------------------------------- |
+| ML models      | CLIP ViT-B/32, YOLO11n, BLIP-2 OPT-2.7B, TensorRT |
+| Search         | Qdrant (vector store, 512-dim cosine)             |
+| Backend        | FastAPI, Celery, Redis                            |
+| Database       | PostgreSQL (corrections, governance)              |
+| Frontend       | Streamlit (main app + HF Spaces demo)             |
+| MLOps          | MLflow, DVC, Label Studio                         |
+| Monitoring     | Prometheus, Grafana                               |
+| Infrastructure | Docker Compose, GitHub Actions CI                 |
 
 ---
 
 ## Quick start
 
-Requires [uv](https://docs.astral.sh/uv/getting-started/installation/), [Docker](https://docs.docker.com/get-docker/), and [Task](https://taskfile.dev/installation/).
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/), [Docker](https://docs.docker.com/get-docker/), [Task](https://taskfile.dev/installation/), and an NVIDIA GPU with CUDA 12.x drivers ([nvidia-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) for Docker GPU passthrough).
 
-```bash
+```powershell
 git clone https://github.com/stharajkiran/VisualVault
 cd visualvault
-cp .env.example .env   # fill in credentials
-task up                # bootstrap data + build + start all services
+Copy-Item .env.example .env   # set local passwords and optional Label Studio keys
+task up                       # bootstrap data, build, and start the stack
 ```
 
 Streamlit UI → `http://127.0.0.1:8501`
 
-**Individual commands** (local development without Docker):
+**Individual commands** (local development with Docker infrastructure):
+
 ```bash
 task bootstrap   # one-time setup: install deps, download data, index images
 task api         # terminal 1 — FastAPI on :8000
@@ -145,8 +191,24 @@ Run `task --list` to see all available commands.
 
 ## Model choices
 
-**CLIP ViT-B/32** handles semantic search because it maps both images and text into the same 512-dimensional space — a query like *"golden hour landscape"* retrieves matching images even if they have no metadata or filename. ViT-B/32 specifically balances speed and accuracy well for a retrieval task: the larger L/14 variant adds ~30% latency with marginal recall improvement at this index size.
+**CLIP ViT-B/32** handles semantic search because it maps both images and text into the same 512-dimensional space — a query like _"golden hour landscape"_ retrieves matching images even if they have no metadata or filename. In the recorded A/B, ViT-L/14 improved Recall@10 by 1.5 points but made image-encoder inference 3.3× slower, so ViT-B/32 remains the active portfolio choice.
 
-**YOLO11n** (nano) runs object detection at ingestion time. The nano variant was chosen deliberately — it keeps the async pipeline from bottlenecking on detection while the image waits for CLIP embedding and BLIP captioning. Precision and recall (86%/78%) are good enough for object-tag search; a larger model would cost 4× the latency for marginal gains on a retrieval use case.
+**YOLO11n** (nano) runs object detection at ingestion time. The nano variant was chosen deliberately to keep enrichment lightweight alongside CLIP and BLIP-2. Its recorded held-out class-presence precision/recall is 86.1%/78.1% at the documented threshold.
 
-**BLIP-2 OPT-2.7B** generates natural language captions that make images searchable by description without manual tagging. BLIP-2 was chosen over lighter captioning models because its vision-language alignment produces captions specific enough to be useful (e.g., *"a black dog catching a frisbee in a park"* vs *"a dog outdoors"*).
+**BLIP-2 OPT-2.7B** provides optional natural language captions that help a reviewer understand a newly ingested asset. Semantic retrieval itself is powered by CLIP embeddings, so captions are enrichment rather than a dependency of search.
+
+---
+
+## Limitations
+
+- VisualVault is a single-team portfolio demo; it does not implement authentication, multi-tenancy, or enterprise approval workflows.
+- The local Docker setup requires an NVIDIA GPU with CUDA 12.x for the full worker pipeline. The Hugging Face demo is search-only.
+- COCO is used as a reproducible technical benchmark, not as a real creative-team asset library.
+- Model retraining is an experiment and requires human review; the project does not claim automatic model promotion or recovery.
+- Face clustering, consent propagation, advanced video intelligence, and continuous streaming are intentionally deferred.
+
+---
+
+## License
+
+MIT © [stharajkiran](https://github.com/stharajkiran)

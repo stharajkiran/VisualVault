@@ -8,15 +8,13 @@ from app.api.models import SearchResponse, SearchResult
 from app.embedding.config import CLIP_BASE
 from app.embedding.registry import registry
 from app.vector_store import qdrant as qdrant_pipeline
-from app.worker.tasks import find_similar_by_image
+from app.worker.celery_app import celery_app
 
 router = APIRouter()
 
 
 @router.get("/search", response_model=SearchResponse)
-async def search_images(
-    request: Request, query: str, top_k: int = 10
-) -> SearchResponse:
+async def search_images(request: Request, query: str, top_k: int = 10) -> SearchResponse:
     """
     Search the image index using a natural language query.
 
@@ -38,9 +36,7 @@ async def search_images(
 
     state = request.app.state
     query_vector = registry.get_active().embed_text(query)
-    raw_results = qdrant_pipeline.search(
-        state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k
-    )
+    raw_results = qdrant_pipeline.search(state.qdrant_client, CLIP_BASE, query_vector, top_k=top_k)
 
     results = [
         SearchResult(
@@ -55,10 +51,9 @@ async def search_images(
 
     return SearchResponse(query=query, results=results, total=len(results))
 
+
 @router.get("/similar/{asset_id}", response_model=SearchResponse)
-async def similar_images(
-    request: Request, asset_id: int, top_k: int = 10
-) -> SearchResponse:
+async def similar_images(request: Request, asset_id: int, top_k: int = 10) -> SearchResponse:
     """
     Return the top-K most visually similar images to a given asset.
 
@@ -128,7 +123,9 @@ async def similar_by_upload(file: UploadFile, top_k: int = 10) -> SearchResponse
     image_bytes = await file.read()
     loop = asyncio.get_event_loop()
     try:
-        task = find_similar_by_image.delay(image_bytes, top_k)
+        task = celery_app.send_task(
+            "app.worker.tasks.find_similar_by_image", args=[image_bytes, top_k]
+        )
         raw_results = await loop.run_in_executor(None, partial(task.get, timeout=10))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Similar search failed: {exc}")

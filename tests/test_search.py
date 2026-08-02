@@ -120,14 +120,18 @@ def test_similar_upload_returns_results():
     mock_task = MagicMock()
     mock_task.get.return_value = _FAKE_RESULTS
 
-    with patch("app.api.routes.search.find_similar_by_image") as mock_fn:
-        mock_fn.delay.return_value = mock_task
+    with patch("app.api.routes.search.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         response = client.post(
             "/similar/upload",
             files={"file": ("img.jpg", _jpeg_bytes(), "image/jpeg")},
         )
 
     assert response.status_code == 200
+    mock_celery.send_task.assert_called_once_with(
+        "app.worker.tasks.find_similar_by_image",
+        args=[_jpeg_bytes(), 10],
+    )
     data = response.json()
     assert data["query"] == "similar:upload"
     assert len(data["results"]) == 2
@@ -139,8 +143,8 @@ def test_similar_upload_returns_500_on_timeout():
     mock_task = MagicMock()
     mock_task.get.side_effect = Exception("timed out")
 
-    with patch("app.api.routes.search.find_similar_by_image") as mock_fn:
-        mock_fn.delay.return_value = mock_task
+    with patch("app.api.routes.search.celery_app") as mock_celery:
+        mock_celery.send_task.return_value = mock_task
         response = client.post(
             "/similar/upload",
             files={"file": ("img.jpg", _jpeg_bytes(), "image/jpeg")},

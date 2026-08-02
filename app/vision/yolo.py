@@ -73,6 +73,6 @@ def detect(image: Image.Image, model: YOLO) -> list[tuple[str, float]]:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     model = load_model()
-    img = Image.open("assets/img.jpg").convert("RGB")
+    img = Image.open("assets/test_img.jpg").convert("RGB")
     tags = detect(img, model)
     print("tags:", tags)
